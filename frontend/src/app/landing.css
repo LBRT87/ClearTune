@@ -17,8 +17,8 @@
   --px: var(--font-press-start), monospace;
   --tx: var(--font-vt323), monospace;
 
-  --t-display: clamp(20px, 3.9vw, 42px);
-  --t-h2: clamp(17px, 2.3vw, 26px);
+  --t-display: clamp(24px, 3.9vw, 42px);
+  --t-h2: clamp(19px, 2.3vw, 26px);
   --t-h3: 15px;
   --t-label: 11px;
   --t-eyebrow: 10px;
@@ -44,7 +44,16 @@
    span the full document height, not just the viewport. `position: relative`
    alone has no effect elsewhere, so this is safe even if the CSS bundle
    persists across a client-side navigation away from `/`. */
-body { position: relative; }
+/* Tipografi badan dari design proof: VT323 22px / 1.55. globals.css memakai
+   21px / 1.5 untuk layar aplikasi; empat halaman yang mengimpor file ini
+   (landing + layar auth) mengikuti proof. Aturan globals ada di @layer base,
+   jadi aturan tanpa layer di sini menang tanpa perlu !important. */
+body {
+  position: relative;
+  font-family: var(--tx);
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+}
 
 .shell { max-width: var(--shell); margin: 0 auto; padding-inline: var(--s3); }
 
@@ -67,9 +76,17 @@ h3 { font-size: var(--t-h3); line-height: var(--lh-label); }
 .small { font-size: var(--t-small); color: var(--dim); }
 .data { font-size: var(--t-data); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
 
-/* .btn / .btn-purple base styles come from the shared app globals.css —
-   this design system and the app's Tailwind one converged on the same
-   values, so only the variants unique to the landing page are here. */
+/* .btn / .btn-purple dasarnya dari globals.css. Dua nilai di sana berbeda
+   dari design proof — padding (15/18) dan bayangan (--dim, bukan --dimmer) —
+   jadi keduanya dikembalikan ke nilai proof untuk halaman-halaman ini saja. */
+.btn {
+  font-size: var(--t-label);
+  padding: 16px 22px;
+  box-shadow: 5px 5px 0 var(--dimmer);
+}
+/* Aturan tanpa layer selalu mengalahkan @layer, termasuk yang lebih spesifik —
+   tanpa baris ini bayangan ungu di globals.css tertimpa .btn di atas. */
+.btn-purple { box-shadow: 5px 5px 0 var(--purple-dark); }
 .btn-ghost { background: transparent; color: var(--ink); box-shadow: none; border-color: #333; }
 .btn-ghost:hover { background: var(--ink); color: var(--void); border-color: var(--ink); }
 .btn.mock { box-shadow: none; cursor: default; }
