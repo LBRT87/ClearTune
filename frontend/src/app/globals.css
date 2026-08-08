@@ -1,0 +1,474 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Pixel system — ported from /component-reference.html */
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #000000;
+    color: #ffffff;
+    font-family: var(--font-vt323), monospace;
+    font-size: 21px;
+    line-height: 1.5;
+    -webkit-font-smoothing: none;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-press-start), monospace;
+    letter-spacing: 0;
+  }
+}
+
+@layer components {
+  /* Buttons — see component-reference.html section 03 */
+  .btn {
+    font-family: var(--font-press-start), monospace;
+    font-size: 11px;
+    border: 3px solid #ffffff;
+    padding: 15px 18px;
+    cursor: pointer;
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 5px 5px 0 #9a9a9a;
+    transition: transform 0.05s;
+  }
+  .btn:hover {
+    background: #000000;
+    color: #ffffff;
+  }
+  .btn:active {
+    transform: translate(5px, 5px);
+    box-shadow: none;
+  }
+  .btn:focus-visible {
+    outline: 4px solid #ffffff;
+    outline-offset: 3px;
+  }
+  .btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .btn:disabled:hover {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  .btn-outline {
+    background: #000000;
+    color: #ffffff;
+  }
+  .btn-outline:hover {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  .btn-purple {
+    background: #8b5cf6;
+    color: #000000;
+    box-shadow: 5px 5px 0 #241033;
+    border-color: #8b5cf6;
+  }
+  .btn-purple:hover {
+    background: #241033;
+    color: #8b5cf6;
+  }
+
+  .btn-success {
+    background: #4ade80;
+    color: #000000;
+    border-color: #4ade80;
+    box-shadow: 5px 5px 0 #1f7a44;
+  }
+  .btn-success:hover {
+    background: #000000;
+    color: #4ade80;
+  }
+
+  .btn-danger {
+    background: #ff5c5c;
+    color: #000000;
+    border-color: #ff5c5c;
+    box-shadow: 5px 5px 0 #7a1f1f;
+  }
+  .btn-danger:hover {
+    background: #000000;
+    color: #ff5c5c;
+  }
+
+  .btn-warn {
+    background: #ffe14d;
+    color: #000000;
+    border-color: #ffe14d;
+    box-shadow: 5px 5px 0 #7a6a1f;
+  }
+  .btn-warn:hover {
+    background: #000000;
+    color: #ffe14d;
+  }
+
+  /* Tags */
+  .tag {
+    display: inline-block;
+    font-family: var(--font-press-start), monospace;
+    font-size: 9px;
+    padding: 7px 10px;
+    border: 2px solid #ffffff;
+    margin: 0 8px 8px 0;
+  }
+  .tag-purple {
+    border-color: #8b5cf6;
+    color: #8b5cf6;
+  }
+  .tag-green {
+    border-color: #4ade80;
+    color: #4ade80;
+  }
+  .tag-red {
+    border-color: #ff5c5c;
+    color: #ff5c5c;
+  }
+  .tag-yellow {
+    border-color: #ffe14d;
+    color: #ffe14d;
+  }
+  .tag-solid {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+  }
+
+  /* Status lines */
+  .status-line {
+    border: 3px solid #ffffff;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .status-dot {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  .status-ok {
+    color: #4ade80;
+  }
+  .status-ok .status-dot {
+    background: #4ade80;
+  }
+  .status-err {
+    color: #ff5c5c;
+  }
+  .status-err .status-dot {
+    background: #ff5c5c;
+  }
+  .status-warn {
+    color: #ffe14d;
+  }
+  .status-warn .status-dot {
+    background: #ffe14d;
+  }
+  .status-info {
+    color: #8b5cf6;
+  }
+  .status-info .status-dot {
+    background: #8b5cf6;
+  }
+
+  /* Fields */
+  .field label {
+    display: block;
+    font-family: var(--font-press-start), monospace;
+    font-size: 10px;
+    margin-bottom: 10px;
+  }
+  .field input,
+  .field select {
+    width: 100%;
+    background: #000000;
+    border: 3px solid #ffffff;
+    color: #ffffff;
+    font-family: var(--font-vt323), monospace;
+    font-size: 20px;
+    padding: 12px 14px;
+  }
+  .field input:focus,
+  .field select:focus {
+    outline: none;
+    border-color: #8b5cf6;
+  }
+  .field.err input {
+    border-color: #ff5c5c;
+  }
+
+  /* Card */
+  .card {
+    border: 3px solid #ffffff;
+    padding: 22px;
+    box-shadow: 8px 8px 0 #8b5cf6;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-top: 1px dashed #9a9a9a;
+  }
+  .stat-row:first-of-type {
+    border-top: none;
+  }
+
+  /* Pixel loader — square dots stepping up/down, no easing (matches the
+     "no smoothing" pixel aesthetic instead of a smooth CSS spinner). */
+  .pixel-loader-dot {
+    width: 12px;
+    height: 12px;
+    background: #8b5cf6;
+    display: inline-block;
+    animation: pixel-bounce 0.9s steps(1) infinite;
+  }
+  @keyframes pixel-bounce {
+    0%,
+    100% {
+      transform: translateY(0);
+      background: #8b5cf6;
+    }
+    50% {
+      transform: translateY(-10px);
+      background: #4ade80;
+    }
+  }
+
+  /* Sidebar */
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    font-family: var(--font-press-start), monospace;
+    font-size: 9px;
+    color: #ffffff;
+    border: 3px solid transparent;
+  }
+  .sidebar-link:hover {
+    color: #8b5cf6;
+  }
+  .sidebar-link-active {
+    background: #8b5cf6;
+    color: #000000;
+    border-color: #8b5cf6;
+  }
+  .sidebar-link-active:hover {
+    color: #000000;
+  }
+
+  .sidebar-lookup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 3px solid #ffffff;
+    border-radius: 999px;
+    padding: 10px 20px;
+    background: #000000;
+  }
+  .sidebar-lookup:focus-within {
+    border-color: #8b5cf6;
+  }
+  .sidebar-lookup-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-family: var(--font-vt323), monospace;
+    font-size: 16px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .sidebar-chain-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    border: 3px solid #ffffff;
+    background: #000000;
+    color: #ffffff;
+    font-family: var(--font-press-start), monospace;
+    font-size: 9px;
+    padding: 10px;
+  }
+  .sidebar-chain-btn:hover {
+    border-color: #8b5cf6;
+    color: #8b5cf6;
+  }
+
+  /* Global search — dropdown results under the top-bar search field */
+  .search-results {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    border: 3px solid #ffffff;
+    border-radius: 20px;
+    background: #000000;
+    box-shadow: 5px 5px 0 #241033;
+    max-height: 320px;
+    overflow-y: auto;
+    z-index: 30;
+  }
+  .search-result-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    text-align: left;
+    padding: 12px 18px;
+    border-bottom: 1px dashed #3a3a3a;
+    cursor: pointer;
+    background: transparent;
+    color: #ffffff;
+  }
+  .search-result-row:first-child {
+    padding-top: 16px;
+  }
+  .search-result-row:last-child {
+    border-bottom: none;
+    padding-bottom: 16px;
+  }
+  .search-result-row:hover {
+    background: #8b5cf6;
+    color: #000000;
+  }
+  .search-result-row .artist {
+    color: #9a9a9a;
+    font-size: 15px;
+  }
+  .search-result-row:hover .artist {
+    color: #241033;
+  }
+  .search-result-empty {
+    color: #9a9a9a;
+    font-size: 16px;
+    cursor: default;
+  }
+  .search-result-empty:hover {
+    background: transparent;
+  }
+
+  /* Filter pills — rounded but keep the hard pixel border/no-blur shadow,
+     so the shape softens without the UI losing its retro identity. */
+  .filter-pill {
+    font-family: var(--font-press-start), monospace;
+    font-size: 9px;
+    padding: 11px 18px;
+    border: 3px solid #ffffff;
+    border-radius: 999px;
+    background: #000000;
+    color: #ffffff;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .filter-pill:hover {
+    border-color: #8b5cf6;
+    color: #8b5cf6;
+  }
+  .filter-pill-active,
+  .filter-pill-active:hover {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+  }
+
+  /* Media cards — Spotify-style horizontal rows (playlists / songs), cover
+     art is procedurally generated (see PixelCover) since there are no
+     uploaded images in this data model. */
+  .media-row {
+    display: flex;
+    gap: 22px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+  .media-card {
+    flex-shrink: 0;
+    width: 168px;
+    text-align: left;
+  }
+  .media-cover {
+    width: 168px;
+    height: 168px;
+    border: 3px solid #ffffff;
+    box-shadow: 6px 6px 0 #241033;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .media-badge {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    font-family: var(--font-press-start), monospace;
+    font-size: 9px;
+    padding: 5px 8px;
+    background: #ffe14d;
+    color: #000000;
+  }
+  .media-title {
+    font-family: var(--font-press-start), monospace;
+    font-size: 10px;
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+  .media-sub {
+    color: #9a9a9a;
+    font-size: 16px;
+  }
+
+  /* Story bar — IG-stories-style row of followed artists */
+  .story-bubble {
+    padding: 3px;
+    border: 3px solid #ffe14d;
+    box-shadow: 3px 3px 0 #7a6a1f;
+    display: inline-flex;
+  }
+  .story-bubble-empty {
+    border-color: #9a9a9a;
+    box-shadow: 3px 3px 0 #3a3a3a;
+  }
+
+  /* Scanline sweep, used behind the landing-page connect gate. */
+  .scanline {
+    position: relative;
+    overflow: hidden;
+  }
+  .scanline::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent, rgba(139, 92, 246, 0.15), transparent);
+    height: 40%;
+    animation: scanline-sweep 2.4s linear infinite;
+  }
+  @keyframes scanline-sweep {
+    0% {
+      transform: translateY(-100%);
+    }
+    100% {
+      transform: translateY(250%);
+    }
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
