@@ -429,3 +429,140 @@ h3 { font-family: var(--px); font-size: var(--t-h3); line-height: var(--lh-label
 .presence-note i { font-style: normal; font-variant-numeric: tabular-nums; }
 
 @media (max-width: 1023px) { .cursor-layer, .presence-note { display: none; } }
+
+/* ══════════════════════════════════════════════════════════════
+   LAYAR AUTH
+   Aturan diturunkan di .scratch/auth/issues/03-prototipe-layar-auth.md,
+   dibuktikan di .scratch/auth/auth-proof.html.
+
+   Halaman naratif memakai 144px antar babak dan scroll sebagai alat
+   cerita. Layar auth kebalikannya: satu keputusan, setinggi viewport,
+   tanpa scroll. Karena itu tangga spasinya sendiri.
+   ══════════════════════════════════════════════════════════════ */
+:root {
+  /* Tangga landing dipotong di 64. 96 dan 144 dibuang — keduanya ada
+     untuk memisahkan BABAK, dan layar auth tidak punya babak. */
+  --a1: 8px;   /* label → field, ikon → teks                         */
+  --a2: 16px;  /* field → keterangan, antar kartu                    */
+  --a3: 24px;  /* eyebrow → judul, jarak di dalam kartu              */
+  --a4: 40px;  /* jarak baku antar blok dalam satu layar             */
+  --a5: 64px;  /* SEKALI per layar: blok identitas → blok aksi       */
+
+  --a-col: 420px;       /* kolom keputusan: kartu, field, tombol     */
+  --a-col-wide: 560px;  /* layar berjudul display. Press Start 2P
+                           42px cuma muat ±9 karakter di 420px.      */
+}
+
+/* ≤430px: seluruh tangga turun satu anak tangga, pasangan dari aturan
+   landing "144px antar babak, 96px di mobile". */
+@media (max-width: 430px) { :root { --a5: 40px; --a4: 24px; } }
+
+/* 100dvh, bukan 100vh — bar URL mobile memakan selisihnya.
+   align-content:center supaya layar yang tumbuh tumbuh ke dua arah. */
+.auth-screen {
+  min-height: 100dvh;
+  display: grid; align-content: center; justify-items: center;
+  padding: var(--a4) var(--a3);
+  text-align: center;
+}
+.auth-col { width: 100%; max-width: var(--a-col); display: grid; justify-items: center; }
+.auth-col-wide { max-width: var(--a-col-wide); }
+
+.auth-screen .btn { width: 100%; max-width: var(--a-col); justify-content: center; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
+
+/* Keadaan menunggu: tombol ditahan di posisi tertekan. Bayangan runtuh
+   sudah jadi bahasa "ditekan" (aturan restraint 03), jadi menahannya di
+   sana berarti "masih dikerjakan" tanpa memperkenalkan benda baru.
+   Tanpa ini, jeda menuju popup Google diklik dua kali — dan klik kedua
+   menutup popup yang baru terbuka. */
+.btn.waiting {
+  transform: translate(5px, 5px); box-shadow: none; pointer-events: none;
+  background: var(--surface-2); color: var(--dim); border-color: #2e2e2e;
+}
+.btn[disabled] {
+  background: transparent; color: var(--dimmer); border-color: #2e2e2e;
+  box-shadow: none; cursor: not-allowed; pointer-events: none;
+}
+.dots::after { content: ""; animation: dots 0.9s steps(4, end) infinite; }
+@keyframes dots {
+  0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; }
+}
+
+.tlink {
+  font-family: var(--tx); font-size: var(--t-small); color: var(--dim);
+  text-decoration: underline; text-underline-offset: 4px; cursor: pointer;
+  background: none; border: 0; padding: 0;
+}
+.tlink:hover { color: var(--ink); }
+.tlink b { font-family: var(--px); font-size: 10px; letter-spacing: 0.06em; color: var(--ink); }
+
+/* ── layar pilih peran: varian C, satu kolom dua langkah ── */
+.auth-steps {
+  display: flex; gap: 8px; align-items: center;
+  font-family: var(--px); font-size: var(--t-eyebrow);
+  color: var(--dimmer); letter-spacing: 0.14em;
+}
+.auth-steps b { color: var(--ink); }
+
+.role-row {
+  border: var(--hair); background: var(--surface); padding: var(--a3);
+  display: grid; grid-template-columns: 1fr auto; gap: var(--a2) var(--a3);
+  align-items: center; text-align: left; width: 100%;
+  font-family: var(--tx); color: inherit; cursor: pointer;
+}
+.role-row:hover { border-color: var(--dimmer); }
+.role-row:focus-visible { outline: 4px solid var(--ink); outline-offset: 3px; }
+/* Aturan restraint 05 di layar ini: ungu-vs-abu adalah keseluruhan
+   bahasanya. Kartu kedua TIDAK punya aksen sendiri — hijau sudah berarti
+   "uang bertambah" di seluruh produk, dan satu layar yang memakainya
+   untuk "pendengar" merusak artinya di semua layar lain. */
+.role-row.on { border: 3px solid var(--purple); background: var(--purple-dark); padding: calc(var(--a3) - 2px); }
+.role-row h3 { color: var(--dim); }
+.role-row.on h3 { color: var(--ink); }
+.role-row .why { font-size: var(--t-small); color: var(--dim); line-height: 1.45; }
+.role-row.on .why { color: #cbb6f5; }
+.role-row .dest { font-family: var(--px); font-size: var(--t-eyebrow); letter-spacing: 0.1em; color: var(--dimmer); }
+.role-row.on .dest { color: var(--purple); }
+.role-row .go { font-family: var(--px); font-size: var(--t-label); color: var(--dimmer); }
+.role-row.on .go { color: var(--purple); }
+
+/* ── field nama panggung ── */
+.field { display: grid; gap: var(--a1); text-align: left; width: 100%; }
+.field label { font-family: var(--px); font-size: var(--t-eyebrow); letter-spacing: 0.14em; color: var(--dim); }
+.field input {
+  font-family: var(--tx); font-size: var(--t-body); color: var(--ink);
+  background: var(--void); border: 1px solid #3a3a3a; padding: 12px 14px;
+  width: 100%; outline: none;
+}
+.field input:focus { border-color: var(--purple); }
+.field .hint { font-size: var(--t-small); color: var(--dimmer); line-height: 1.35; }
+.field.bad input { border-color: var(--red); }
+.field .err { font-size: var(--t-small); color: var(--red); line-height: 1.35; display: flex; gap: 8px; }
+.field .err b { font-family: var(--px); font-size: 10px; }
+
+/* ── shell dashboard ── */
+.topbar {
+  width: 100%; border-bottom: var(--line); background: var(--void);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--a3); padding: var(--a2) var(--a3); flex-wrap: wrap;
+}
+.ident { display: flex; align-items: center; gap: var(--a2); flex-wrap: wrap; justify-content: flex-end; }
+.chip {
+  font-family: var(--px); font-size: var(--t-eyebrow); letter-spacing: 0.12em;
+  border: 1px solid var(--purple); color: var(--purple); padding: 6px 9px;
+}
+.dash { max-width: 900px; margin: 0 auto; padding: var(--a4) var(--a3); width: 100%; }
+.dash-stack { display: grid; gap: var(--a4); }
+.wallet-card { border: var(--line); background: var(--surface); padding: var(--a3); display: grid; gap: var(--a3); }
+.wallet-card .wrow { display: flex; justify-content: space-between; align-items: baseline; gap: var(--a2); flex-wrap: wrap; }
+.wallet-card .wrow + .wrow { border-top: var(--hair); padding-top: var(--a3); }
+
+/* Placeholder jujur. Tidak pernah menggambar player atau grafik
+   pendapatan palsu — spec §7 menaruh keduanya di langkah 3 & 5, dan
+   shell yang berbohong akan menipu tim sendiri besok pagi.
+   1px dashed, bukan 3px: anggaran border 3px per layar sudah dipakai
+   topbar + kartu dompet (aturan restraint 04). */
+.ph { border: var(--hair); padding: var(--a4) var(--a3); display: grid; gap: var(--a1); text-align: center; }
+.ph .tag { font-family: var(--px); font-size: var(--t-eyebrow); letter-spacing: 0.14em; color: var(--dimmer); }
+.ph .say { font-size: var(--t-small); color: var(--dim); max-width: 44ch; margin: 0 auto; line-height: 1.45; }

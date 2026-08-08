@@ -28,6 +28,17 @@ import {
 } from "@/components/ProductVisuals";
 import { SettlementWidget } from "@/components/SettlementWidget";
 import { PLATFORM_FEE_BPS, RATE_PER_PLAY, SETTLEMENT, fmt } from "@/lib/settlement";
+import Link from "next/link";
+
+/* Tiga CTA memetakan berbeda (tiket auth/05):
+     DENGAR SEKARANG → /daftar?role=pendengar
+     SAYA MUSISI     → /daftar?role=musisi
+     BUKA APP        → /masuk
+   `?role=` memilihkan copy di `/daftar` dan kartu di layar pilih peran —
+   tidak mengunci apa pun. Tiket 07 yang membuat CTA ini sadar sesi. */
+const CTA_DENGAR = "/daftar?role=pendengar";
+const CTA_MUSISI = "/daftar?role=musisi";
+const CTA_MASUK = "/masuk";
 
 /* Timeline perbandingan: kedua track lebarnya identik, jadi kerapatannya
    yang bicara — 1 pembayaran dalam 6 bulan vs 1 tiap play. */
@@ -56,9 +67,9 @@ export default function Home() {
           <span className="brand">
             CLEARTUNE<i>.</i>
           </span>
-          <a className="btn btn-purple" href="#">
+          <Link className="btn btn-purple" href={CTA_MASUK}>
             BUKA APP
-          </a>
+          </Link>
         </div>
       </nav>
 
@@ -78,12 +89,12 @@ export default function Home() {
             Bukan direkap, bukan dijanjikan.
           </p>
           <div className="cta">
-            <a className="btn" href="#">
+            <Link className="btn" href={CTA_DENGAR}>
               DENGAR SEKARANG
-            </a>
-            <a className="btn btn-ghost" href="#">
+            </Link>
+            <Link className="btn btn-ghost" href={CTA_MUSISI}>
               SAYA MUSISI
-            </a>
+            </Link>
           </div>
 
           <SettlementWidget />
@@ -324,12 +335,12 @@ export default function Home() {
           </div>
 
           <div className="close-cta">
-            <a className="btn btn-purple" href="#">
+            <Link className="btn btn-purple" href={CTA_DENGAR}>
               DENGAR SEKARANG
-            </a>
-            <a className="btn btn-ghost" href="#">
+            </Link>
+            <Link className="btn btn-ghost" href={CTA_MUSISI}>
               DAFTARKAN LAGU
-            </a>
+            </Link>
           </div>
         </section>
       </main>

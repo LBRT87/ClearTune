@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Press_Start_2P, VT323 } from "next/font/google";
+import Providers from "@/components/providers";
 import "./globals.css";
 
 /* Self-host lewat next/font, bukan <link> ke Google Fonts.
@@ -32,7 +33,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className={`${px.variable} ${tx.variable}`}>
-      <body>{children}</body>
+      {/* `Providers` client component, tapi `children` dioper dari layout
+          server ini sebagai slot — `app/page.tsx` tetap dirender di server
+          dan landing page tidak berubah statusnya. */}
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
