@@ -4,11 +4,24 @@ out/
 **/broadcast/*/31337/
 **/broadcast/*/31337-fork/
 
-# --- Node / Next.js (for when frontend lands) ---
+# --- Node / Next.js ---
 node_modules/
 .next/
 out-next/
 dist/
+build/
+next-env.d.ts
+*.tsbuildinfo
+npm-debug.log*
+
+# --- Deploy ---
+.vercel
+
+# --- Catatan kerja & tooling agent (lokal saja, jangan ikut ke remote) ---
+.scratch/
+.agents/
+.claude/
+skills-lock.json
 
 # --- Env / secrets ---
 .env
