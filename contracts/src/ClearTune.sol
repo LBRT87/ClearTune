@@ -6,13 +6,21 @@ interface IMockUSD {
     function transferFrom(address from, address to, uint256 amount) external returns (bool);
 }
 
+/// @title ClearTune
+/// @notice Royalty router: per-play, real-time, on-chain settlement to song payees.
+/// Money and chart-trust are separate paths — this contract only ever moves money;
+/// trust scoring happens off-chain and never blocks a payment. See project-spec.md.
 contract ClearTune {
+    // ---------------------------------------------------------------------
+    // Types
+    // ---------------------------------------------------------------------
+
     struct Song {
-        bytes32 fingerprint;
-        bytes32 contentHash;
-        string uri;
+        bytes32 fingerprint; // audio fingerprint, duplicate check
+        bytes32 contentHash; // file hash, authenticity check
+        string uri; // Supabase Storage location
         address[] payees;
-        uint16[] bps;
+        uint16[] bps; // basis points, must sum to 10000
         address registrar;
         bool exists;
     }
@@ -27,9 +35,13 @@ contract ClearTune {
         Treasury
     }
 
+    // ---------------------------------------------------------------------
+    // Storage
+    // ---------------------------------------------------------------------
+
     IMockUSD public immutable token;
     address public owner;
-    address public backend;
+    address public backend; // authorized off-chain reporter for reportPlays
 
     uint256 public nextSongId = 1;
     mapping(uint256 => Song) public songs;
@@ -42,15 +54,19 @@ contract ClearTune {
     mapping(address => bool) public autoRefillEnabled;
     mapping(address => uint256) public subBalance;
 
-    mapping(address => uint256) public earned;
+    mapping(address => uint256) public earned; // pull-pattern payee balances
     uint256 public treasury;
 
     uint256 public playCap = 1000;
-    uint256 public ratePerPlay = 1000;
-    uint16 public platformFeeBps = 800;
+    uint256 public ratePerPlay = 1000; // smallest units of mUSD (6 decimals)
+    uint16 public platformFeeBps = 800; // 8%
 
     uint256 public constant MAX_PAYEES = 10;
     uint16 public constant TOTAL_BPS = 10000;
+
+    // ---------------------------------------------------------------------
+    // Events
+    // ---------------------------------------------------------------------
 
     event SongRegistered(uint256 indexed songId, bytes32 fingerprint, address indexed registrar);
     event Subscribed(address indexed listener, uint256 amount, uint256 newBalance);
@@ -63,6 +79,10 @@ contract ClearTune {
     event ConfigUpdated(uint256 playCap, uint256 ratePerPlay, uint16 platformFeeBps);
     event BackendUpdated(address indexed backend);
     event PeriodAdvanced(uint256 newPeriod);
+
+    // ---------------------------------------------------------------------
+    // Modifiers
+    // ---------------------------------------------------------------------
 
     modifier onlyOwner() {
         require(msg.sender == owner, "ClearTune: not owner");
@@ -80,6 +100,10 @@ contract ClearTune {
         owner = msg.sender;
         backend = backendAddress;
     }
+
+    // ---------------------------------------------------------------------
+    // Song registry
+    // ---------------------------------------------------------------------
 
     function registerSong(
         bytes32 fingerprint,
@@ -122,6 +146,10 @@ contract ClearTune {
         return (s.payees, s.bps);
     }
 
+    // ---------------------------------------------------------------------
+    // Listener subscription
+    // ---------------------------------------------------------------------
+
     function subscribe(uint256 amount) external {
         require(amount > 0, "ClearTune: zero amount");
         require(token.transferFrom(msg.sender, address(this), amount), "ClearTune: transferFrom failed");
@@ -129,10 +157,15 @@ contract ClearTune {
         emit Subscribed(msg.sender, amount, subBalance[msg.sender]);
     }
 
+    /// @notice Explicit opt-in/opt-out. Never enabled by default — see project-spec.md 2.2.
     function toggleAutoRefill(bool enabled) external {
         autoRefillEnabled[msg.sender] = enabled;
         emit AutoRefillSet(msg.sender, enabled);
     }
+
+    // ---------------------------------------------------------------------
+    // Play reporting / settlement
+    // ---------------------------------------------------------------------
 
     function reportPlays(PlayReport[] calldata reports) external onlyBackend {
         for (uint256 i = 0; i < reports.length; i++) {
@@ -160,6 +193,9 @@ contract ClearTune {
             playsThisMonth[listener] += 1;
             emit PlayReported(listener, songId, FundedBy.Subscription, ratePerPlay, currentPeriod);
         } else {
+            // Cap reached, auto-refill not covering it: play is still valid (for trust
+            // layer purposes) and the artist is still paid — funded by treasury, no
+            // deduction from the listener. See project-spec.md 2.2 "musisi selalu dibayar".
             require(treasury >= toPayees, "ClearTune: treasury insufficient");
             treasury -= toPayees;
             _distribute(s, toPayees);
@@ -176,6 +212,7 @@ contract ClearTune {
             earned[s.payees[i]] += share;
             distributed += share;
         }
+        // Dust goes to the last payee — see project-spec.md section 6.
         earned[s.payees[n - 1]] += amount - distributed;
     }
 
@@ -186,6 +223,10 @@ contract ClearTune {
         }
     }
 
+    // ---------------------------------------------------------------------
+    // Withdrawals (pull pattern, checks-effects-interactions)
+    // ---------------------------------------------------------------------
+
     function withdraw() external {
         uint256 amount = earned[msg.sender];
         require(amount > 0, "ClearTune: nothing to withdraw");
@@ -194,12 +235,22 @@ contract ClearTune {
         emit Withdrawn(msg.sender, amount);
     }
 
+    // ---------------------------------------------------------------------
+    // Treasury
+    // ---------------------------------------------------------------------
+
+    /// @notice Anyone can top up the treasury (demo seeding, or a platform-side subsidy).
     function fundTreasury(uint256 amount) external {
         require(amount > 0, "ClearTune: zero amount");
         require(token.transferFrom(msg.sender, address(this), amount), "ClearTune: transferFrom failed");
         treasury += amount;
         emit TreasuryFunded(msg.sender, amount);
     }
+
+    // ---------------------------------------------------------------------
+    // Owner config — all business numbers are parameters, never hardcoded
+    // in the frontend. See project-spec.md 2.2 and section 9.
+    // ---------------------------------------------------------------------
 
     function setConfig(uint256 newPlayCap, uint256 newRatePerPlay, uint16 newPlatformFeeBps) external onlyOwner {
         require(newPlatformFeeBps <= TOTAL_BPS, "ClearTune: fee bps out of range");
@@ -223,6 +274,8 @@ contract ClearTune {
         owner = newOwner;
     }
 
+    /// @notice Demo/dev control: simulate a month rollover without waiting a month.
+    /// Lazily resets playsThisMonth for every listener on their next reported play.
     function advancePeriod() external onlyOwner {
         currentPeriod += 1;
         emit PeriodAdvanced(currentPeriod);
