@@ -7,9 +7,8 @@ export type PlaysByDay = { date: string; plays: number };
 
 export type ListenerProfile = {
   wallet: string;
-  playsThisMonth: bigint;
-  playCap: bigint;
-  autoRefillEnabled: boolean;
+  balance: bigint;
+  ratePerPlay: bigint;
   trustScore: number | null;
   supportedArtists: SupportedArtist[];
   totalPlays: number;
@@ -19,16 +18,16 @@ export type ListenerProfile = {
 export async function getListenerProfile(wallet: `0x${string}`): Promise<ListenerProfile> {
   const client = getPublicClient();
 
-  const [config, played, autoRefill] = await Promise.all([
-    client.readContract({ address: CLEARTUNE_ADDRESS, abi: clearTuneAbi, functionName: "getConfig" }).catch(() => [0n, 0n, 0] as const),
-    client.readContract({ address: CLEARTUNE_ADDRESS, abi: clearTuneAbi, functionName: "playsThisMonth", args: [wallet] }).catch(() => 0n),
-    client.readContract({ address: CLEARTUNE_ADDRESS, abi: clearTuneAbi, functionName: "autoRefillEnabled", args: [wallet] }).catch(() => false),
+  const [config, balance] = await Promise.all([
+    client.readContract({ address: CLEARTUNE_ADDRESS, abi: clearTuneAbi, functionName: "getConfig" }).catch(() => [0n, 0, 0n] as const),
+    client.readContract({ address: CLEARTUNE_ADDRESS, abi: clearTuneAbi, functionName: "balance", args: [wallet] }).catch(() => 0n),
   ]);
 
   const { data: plays } = await supabase
     .from("plays")
-    .select("song_id, played_at, songs(artist)")
+    .select("song_id, played_at, status, songs(artist)")
     .eq("wallet", wallet)
+    .eq("status", "paid")
     .order("played_at", { ascending: true });
 
   const { data: stats } = await supabase.from("wallet_stats").select("trust_score").eq("wallet", wallet).maybeSingle();
@@ -51,9 +50,8 @@ export async function getListenerProfile(wallet: `0x${string}`): Promise<Listene
 
   return {
     wallet,
-    playsThisMonth: played as bigint,
-    playCap: (config as readonly [bigint, bigint, number])[0],
-    autoRefillEnabled: autoRefill as boolean,
+    balance: balance as bigint,
+    ratePerPlay: (config as readonly [bigint, number, bigint])[0],
     trustScore: stats?.trust_score ?? null,
     supportedArtists,
     totalPlays: plays?.length ?? 0,

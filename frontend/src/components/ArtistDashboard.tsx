@@ -9,10 +9,9 @@ import type { SongRow } from "@/lib/songs";
 import { Button } from "@/components/ui/Button";
 import { Card, StatRow } from "@/components/ui/Card";
 import { StatusLine } from "@/components/ui/StatusLine";
-import { RevenueSplitChart } from "@/components/charts/RevenueSplitChart";
 import { SongPlaysChart } from "@/components/charts/SongPlaysChart";
 
-type PlayAgg = { song_id: number; funded_by: "subscription" | "treasury"; count: number };
+type PlayAgg = { song_id: number; status: "paid" | "skipped_low_balance"; count: number };
 
 export function ArtistDashboard({ songs }: { songs: SongRow[] }) {
   const { address, isConnected } = useAccount();
@@ -62,16 +61,16 @@ export function ArtistDashboard({ songs }: { songs: SongRow[] }) {
     const songIds = mySongs.map((s) => s.song_id_onchain);
     supabase
       .from("plays")
-      .select("song_id, funded_by")
+      .select("song_id, status")
       .in("song_id", songIds)
       .then(({ data }) => {
         if (!data) return;
         const grouped = new Map<string, PlayAgg>();
-        for (const row of data as { song_id: number; funded_by: "subscription" | "treasury" }[]) {
-          const key = `${row.song_id}-${row.funded_by}`;
+        for (const row of data as { song_id: number; status: "paid" | "skipped_low_balance" }[]) {
+          const key = `${row.song_id}-${row.status}`;
           const existing = grouped.get(key);
           if (existing) existing.count += 1;
-          else grouped.set(key, { song_id: row.song_id, funded_by: row.funded_by, count: 1 });
+          else grouped.set(key, { song_id: row.song_id, status: row.status, count: 1 });
         }
         setPlays(Array.from(grouped.values()));
       });
@@ -81,9 +80,9 @@ export function ArtistDashboard({ songs }: { songs: SongRow[] }) {
     return <StatusLine variant="info" label="HUBUNGKAN DOMPET" detail="Sambungkan dompet untuk melihat dashboard." />;
   }
 
-  const ratePerPlay = config?.[1] ?? 0n;
-  const subscriptionPlays = plays.filter((p) => p.funded_by === "subscription").reduce((s, p) => s + p.count, 0);
-  const treasuryPlays = plays.filter((p) => p.funded_by === "treasury").reduce((s, p) => s + p.count, 0);
+  const ratePerPlay = config?.[0] ?? 0n;
+  const paidPlays = plays.filter((p) => p.status === "paid").reduce((s, p) => s + p.count, 0);
+  const skippedPlays = plays.filter((p) => p.status === "skipped_low_balance").reduce((s, p) => s + p.count, 0);
 
   async function handleWithdraw() {
     await writeContractAsync({ address: CLEARTUNE_ADDRESS, abi: clearTuneAbi, functionName: "withdraw" });
@@ -101,9 +100,9 @@ export function ArtistDashboard({ songs }: { songs: SongRow[] }) {
             {isPending ? "MEMPROSES..." : "TARIK SALDO"}
           </Button>
         </Card>
-        <Card eyebrow="RINCIAN SUMBER PENDAPATAN">
-          <StatRow label="Dari subscription pendengar" value={`${subscriptionPlays} play`} />
-          <StatRow label="Dari kas platform (play gratis)" value={`${treasuryPlays} play`} accent />
+        <Card eyebrow="RINGKASAN PLAY">
+          <StatRow label="Play sukses (dibayar)" value={`${paidPlays} play`} />
+          <StatRow label="Di-skip (saldo pendengar kurang)" value={`${skippedPlays} play`} accent />
           <StatRow label="Tarif per play saat ini" value={`${formatUnits(ratePerPlay, 6)} mUSD`} />
         </Card>
       </div>
@@ -114,12 +113,11 @@ export function ArtistDashboard({ songs }: { songs: SongRow[] }) {
           <SongPlaysChart
             data={mySongs.map((s) => ({
               title: s.title,
-              plays: plays.filter((p) => p.song_id === s.song_id_onchain).reduce((sum, p) => sum + p.count, 0),
+              plays: plays
+                .filter((p) => p.song_id === s.song_id_onchain && p.status === "paid")
+                .reduce((sum, p) => sum + p.count, 0),
             }))}
           />
-        </Card>
-        <Card eyebrow="SUMBER PENDAPATAN">
-          <RevenueSplitChart subscription={subscriptionPlays} treasury={treasuryPlays} />
         </Card>
       </div>
 
@@ -128,17 +126,13 @@ export function ArtistDashboard({ songs }: { songs: SongRow[] }) {
       <div className="grid md:grid-cols-3 gap-6">
         {mySongs.map((song) => {
           const songPlays = plays.filter((p) => p.song_id === song.song_id_onchain);
-          const total = songPlays.reduce((s, p) => s + p.count, 0);
+          const total = songPlays.filter((p) => p.status === "paid").reduce((s, p) => s + p.count, 0);
           return (
             <Card key={song.song_id_onchain} eyebrow={`LAGU #${song.song_id_onchain}`} title={song.title.toUpperCase()}>
-              <StatRow label="Play total" value={String(total)} />
+              <StatRow label="Play sukses" value={String(total)} />
               <StatRow
-                label="Dari subscription"
-                value={String(songPlays.find((p) => p.funded_by === "subscription")?.count ?? 0)}
-              />
-              <StatRow
-                label="Dari treasury"
-                value={String(songPlays.find((p) => p.funded_by === "treasury")?.count ?? 0)}
+                label="Di-skip"
+                value={String(songPlays.find((p) => p.status === "skipped_low_balance")?.count ?? 0)}
                 accent
               />
             </Card>

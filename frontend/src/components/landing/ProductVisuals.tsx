@@ -5,34 +5,30 @@
    aturan restraint 03 tetap berlaku — hard shadow hanya di benda yang
    benar-benar bisa ditekan.
 
-   Microcopy "MODE GRATIS AKTIF" + catatannya berasal dari deck A (tiket 04,
-   `micro.capBadge` / `micro.capNote`). */
+   Model bisnisnya pay-per-play murni (project-spec.md §2): tidak ada cap,
+   tidak ada mode gratis, tidak ada auto-refill. Saldo habis = berhenti,
+   titik. */
 
-const CAP_SLOTS = 40;
+const BALANCE_SLOTS = 40;
 
-export function CapVisual() {
+export function BalanceVisual() {
   return (
     <>
       <div className="meter-cap">
-        <span className="k">Play bulan ini</span>
-        <span className="v">1.000 / 1.000</span>
+        <span className="k">Saldo</span>
+        <span className="v">0,000000 mUSD</span>
       </div>
       <div className="bar">
-        {Array.from({ length: CAP_SLOTS }, (_, i) => (
-          <i key={i} className="on" />
+        {Array.from({ length: BALANCE_SLOTS }, (_, i) => (
+          <i key={i} />
         ))}
       </div>
       <div className="pv-block">
-        <span className="badge">MODE GRATIS AKTIF</span>
+        <span className="badge">SALDO HABIS</span>
         <p className="badge-note">
-          Cap habis. Lagu tetap jalan, musisi dibayar dari kas platform.
+          Playback berhenti / turun ke preview 30 detik. Tidak ada mode gratis — top-up lagi
+          buat lanjut dengar.
         </p>
-      </div>
-      <div className="pv-block">
-        <div className="row">
-          <span className="k">Auto-refill</span>
-          <span className="v">MATI</span>
-        </div>
       </div>
     </>
   );
@@ -43,12 +39,12 @@ export function EarningsVisual() {
     <>
       <div className="pv-head eyebrow">SALDO REKAH</div>
       <div className="row">
-        <span className="k">Dari subscription pendengar</span>
-        <span className="v">0,412000</span>
+        <span className="k">Pendapatan hari ini</span>
+        <span className="v">0,088000</span>
       </div>
       <div className="row">
-        <span className="k">Dari kas platform</span>
-        <span className="v">0,088000</span>
+        <span className="k">Sepanjang masa</span>
+        <span className="v">0,412000</span>
       </div>
       <div className="total">
         <span className="k">SIAP DITARIK</span>

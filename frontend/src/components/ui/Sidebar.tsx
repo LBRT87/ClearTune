@@ -10,7 +10,7 @@ import { ConnectWalletButton } from "./WalletControls";
 const NAV_ITEMS: { href: string; label: string; icon: PixelIconName }[] = [
   { href: "/home", label: "HOME", icon: "home" },
   { href: "/catalog", label: "CATALOG", icon: "catalog" },
-  { href: "/subscribe", label: "SUBSCRIBE", icon: "subscribe" },
+  { href: "/topup", label: "TOP UP", icon: "topup" },
   { href: "/playlists", label: "PLAYLISTS", icon: "playlist" },
   { href: "/dashboard", label: "DASHBOARD", icon: "dashboard" },
   { href: "/register", label: "REGISTER SONG", icon: "register" },

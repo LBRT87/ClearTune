@@ -10,10 +10,11 @@
    2. Satu playthrough = satu play. Bukan satu play tiap N detik: mendengarkan
       30 detik sekali jalan itu satu play, bukan tiga. Play berikutnya baru
       dihitung setelah lagunya diulang.
-   3. TIDAK ADA tx hash palsu. Kontrak belum ter-deploy; membuat hash acak
-      yang berubah tiap play persis yang akan langsung ketahuan juri Monad,
-      dan ketahuan memalsukan bukti jauh lebih mahal daripada mengakui ini
-      simulasi. */
+   3. TIDAK ADA tx hash palsu. Widget hero ini simulasi lokal, tidak memanggil
+      kontrak — membuat hash acak yang berubah tiap play persis yang akan
+      langsung ketahuan juri Monad, dan ketahuan memalsukan bukti jauh lebih
+      mahal daripada mengakui ini simulasi. Kontraknya sendiri sudah live dan
+      terverifikasi di Monad testnet — buktinya ada di app, bukan di widget ini. */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -265,18 +266,18 @@ export function SettlementWidget() {
           </div>
           <div className="rc">
             <span className="k">Didanai</span>
-            <span className="data">subscription pendengar</span>
+            <span className="data">saldo pendengar</span>
           </div>
           <div className="rc">
             <span className="k">Tx</span>
-            <span className="data pending">menunggu deploy kontrak</span>
+            <span className="data pending">simulasi — putar di app buat tx sungguhan</span>
           </div>
           <p
             className="small"
             style={{ marginTop: 14, fontSize: 16, color: "var(--dimmer)", lineHeight: 1.5 }}
           >
-            Begitu kontraknya hidup, tiap play di atas memanggil{" "}
-            <code>reportPlays</code> sekali dan meninggalkan satu transaksi yang
+            Di app sungguhan, tiap play di atas memanggil <code>reportPlays</code> sekali di
+            kontrak yang sudah live di Monad testnet, dan meninggalkan satu transaksi yang
             bisa dibuka siapa saja. Tidak ada rekap, tidak ada laporan bulanan.
           </p>
         </div>
@@ -340,8 +341,9 @@ export function SettlementWidget() {
           <code>platformFeeBps</code> {PLATFORM_FEE_BPS}, total split {TOTAL_BPS} bps,
           satuan mUSD 6 desimal. Satu play dihitung setelah{" "}
           {secs(threshold)} detik terdengar — dipendekkan dari konvensi industri 30
-          detik supaya muat dalam satu demo. Kontrak belum ter-deploy; angka di atas
-          dihitung di browser, bukan dibaca dari chain.
+          detik supaya muat dalam satu demo. Parameter di atas sama dengan yang live di
+          kontrak Monad testnet; angka di widget ini dihitung di browser, bukan dibaca
+          langsung dari chain.
         </p>
       </div>
     </div>

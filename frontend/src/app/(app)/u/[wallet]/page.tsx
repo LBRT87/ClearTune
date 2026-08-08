@@ -1,3 +1,4 @@
+import { formatUnits } from "viem";
 import { getListenerProfile } from "@/lib/listenerProfile";
 import { Card, StatRow } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
@@ -12,7 +13,8 @@ export default async function ListenerProfilePage({ params }: { params: { wallet
   const wallet = params.wallet as `0x${string}`;
   const profile = await getListenerProfile(wallet);
 
-  const capReached = profile.playsThisMonth >= profile.playCap;
+  const balanceEmpty = profile.ratePerPlay > 0n && profile.balance < profile.ratePerPlay;
+  const remainingPlays = profile.ratePerPlay > 0n ? profile.balance / profile.ratePerPlay : 0n;
   const topArtist = profile.supportedArtists[0];
 
   return (
@@ -22,10 +24,7 @@ export default async function ListenerProfilePage({ params }: { params: { wallet
       <p className="text-dim text-lg mb-8 break-all">{wallet}</p>
 
       <div className="flex gap-3 flex-wrap mb-10">
-        <Tag variant={capReached ? "yellow" : "green"}>{capReached ? "MODE GRATIS AKTIF" : "AKTIF DI BAWAH CAP"}</Tag>
-        <Tag variant={profile.autoRefillEnabled ? "purple" : "neutral"}>
-          {profile.autoRefillEnabled ? "AUTO-REFILL ON" : "AUTO-REFILL OFF"}
-        </Tag>
+        <Tag variant={balanceEmpty ? "yellow" : "green"}>{balanceEmpty ? "SALDO HABIS" : "SALDO AKTIF"}</Tag>
         {profile.trustScore !== null && (
           <Tag variant={profile.trustScore >= 0.6 ? "green" : profile.trustScore >= 0.3 ? "yellow" : "red"}>
             TRUST SCORE {(profile.trustScore * 100).toFixed(0)}%
@@ -34,13 +33,14 @@ export default async function ListenerProfilePage({ params }: { params: { wallet
       </div>
 
       <div className="grid md:grid-cols-2 gap-6 mb-10">
-        <Card eyebrow="STATUS KUOTA">
-          <StatRow label="Play bulan ini" value={`${profile.playsThisMonth} / ${profile.playCap}`} />
+        <Card eyebrow="STATUS SALDO">
+          <StatRow label="Saldo saat ini" value={`${formatUnits(profile.balance, 6)} mUSD`} />
+          <StatRow label="Perkiraan sisa play" value={String(remainingPlays)} />
           <StatRow label="Total play (sepanjang masa)" value={String(profile.totalPlays)} />
         </Card>
         <Card eyebrow="PANEL DUKUNGAN">
           <p className="text-lg mb-3">
-            Bulan ini mendukung <b className="text-purple">{profile.supportedArtists.length} musisi</b>
+            Sejauh ini mendukung <b className="text-purple">{profile.supportedArtists.length} musisi</b>
             {topArtist && (
               <>
                 , terbanyak <b className="text-purple">{topArtist.artist}</b> ({topArtist.plays} play)

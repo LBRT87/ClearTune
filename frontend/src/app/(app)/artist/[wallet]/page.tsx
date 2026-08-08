@@ -34,9 +34,8 @@ export default async function ArtistProfilePage({ params }: { params: { wallet: 
       <div className="grid md:grid-cols-3 gap-6">
         {profile.songs.map((s) => (
           <Card key={s.song_id_onchain} eyebrow={`LAGU #${s.song_id_onchain}`} title={s.title.toUpperCase()}>
-            <StatRow label="Play total" value={String(s.totalPlays)} />
-            <StatRow label="Dari subscription" value={String(s.subscriptionPlays)} />
-            <StatRow label="Dari treasury" value={String(s.treasuryPlays)} accent />
+            <StatRow label="Play sukses" value={String(s.totalPlays)} />
+            <StatRow label="Di-skip (saldo kurang)" value={String(s.skippedPlays)} accent />
           </Card>
         ))}
       </div>

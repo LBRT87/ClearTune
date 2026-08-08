@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getSongs } from "@/lib/songs";
-import { CapStatusBanner } from "@/components/CapStatusBanner";
+import { BalanceStatusBanner } from "@/components/BalanceStatusBanner";
 import { Card, StatRow } from "@/components/ui/Card";
 
 export default async function CatalogPage() {
@@ -9,7 +9,7 @@ export default async function CatalogPage() {
   return (
     <main className="max-w-[1040px] mx-auto px-5 py-12">
       <h1 className="font-display text-xl mb-8">KATALOG</h1>
-      <CapStatusBanner />
+      <BalanceStatusBanner />
       <div className="grid md:grid-cols-3 gap-6">
         {songs.map((song) => (
           <Link key={song.song_id_onchain} href={`/song/${song.song_id_onchain}`}>

@@ -25,9 +25,11 @@ export default function AdminPage() {
     functionName: "getConfig",
   });
 
-  const [playCap, setPlayCap] = useState("");
   const [ratePerPlay, setRatePerPlay] = useState("");
   const [feeBps, setFeeBps] = useState("");
+  const [minTopUp, setMinTopUp] = useState("");
+  const [withdrawTo, setWithdrawTo] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
 
   const isOwner = !!address && !!owner && address.toLowerCase() === (owner as string).toLowerCase();
 
@@ -37,16 +39,24 @@ export default function AdminPage() {
       abi: clearTuneAbi,
       functionName: "setConfig",
       args: [
-        BigInt(playCap || config?.[0] || 0),
-        parseUnits(ratePerPlay || formatUnits(config?.[1] ?? 0n, 6), 6),
-        Number(feeBps || config?.[2] || 0),
+        parseUnits(ratePerPlay || formatUnits(config?.[0] ?? 0n, 6), 6),
+        Number(feeBps || config?.[1] || 0),
+        parseUnits(minTopUp || formatUnits(config?.[2] ?? 0n, 6), 6),
       ],
     });
     refetchConfig();
   }
 
-  async function handleAdvancePeriod() {
-    await writeContractAsync({ address: CLEARTUNE_ADDRESS, abi: clearTuneAbi, functionName: "advancePeriod" });
+  async function handleWithdrawTreasury() {
+    if (!withdrawTo || !withdrawAmount) return;
+    await writeContractAsync({
+      address: CLEARTUNE_ADDRESS,
+      abi: clearTuneAbi,
+      functionName: "withdrawTreasury",
+      args: [withdrawTo as `0x${string}`, parseUnits(withdrawAmount, 6)],
+    });
+    setWithdrawAmount("");
+    refetchTreasury();
   }
 
   if (!isConnected) {
@@ -71,35 +81,39 @@ export default function AdminPage() {
 
       <div className="grid md:grid-cols-2 gap-6 mb-10">
         <Card eyebrow="KESEHATAN KAS">
-          <StatRow label="Saldo treasury" value={`${treasury !== undefined ? formatUnits(treasury as bigint, 6) : "—"} mUSD`} accent />
+          <StatRow label="Saldo treasury (fee terkumpul)" value={`${treasury !== undefined ? formatUnits(treasury as bigint, 6) : "—"} mUSD`} accent />
           <Button variant="outline" className="mt-4 w-auto" onClick={() => refetchTreasury()}>
             REFRESH
           </Button>
         </Card>
         <Card eyebrow="PARAMETER SAAT INI">
-          <StatRow label="Play cap" value={String(config?.[0] ?? "—")} />
-          <StatRow label="Rate per play" value={`${config ? formatUnits(config[1], 6) : "—"} mUSD`} />
-          <StatRow label="Platform fee" value={`${config ? config[2] / 100 : "—"}%`} />
+          <StatRow label="Rate per play" value={`${config ? formatUnits(config[0], 6) : "—"} mUSD`} />
+          <StatRow label="Platform fee" value={`${config ? config[1] / 100 : "—"}%`} />
+          <StatRow label="Minimum top up" value={`${config ? formatUnits(config[2], 6) : "—"} mUSD`} />
         </Card>
       </div>
 
       <Card eyebrow="UBAH PARAMETER" className="mb-8 max-w-none">
         <div className="flex gap-4 flex-wrap items-end">
-          <Field label="PLAY CAP" type="number" placeholder={String(config?.[0] ?? "")} value={playCap} onChange={(e) => setPlayCap(e.target.value)} />
-          <Field label="RATE PER PLAY (mUSD)" type="text" placeholder={config ? formatUnits(config[1], 6) : ""} value={ratePerPlay} onChange={(e) => setRatePerPlay(e.target.value)} />
-          <Field label="PLATFORM FEE (BPS)" type="number" placeholder={String(config?.[2] ?? "")} value={feeBps} onChange={(e) => setFeeBps(e.target.value)} />
+          <Field label="RATE PER PLAY (mUSD)" type="text" placeholder={config ? formatUnits(config[0], 6) : ""} value={ratePerPlay} onChange={(e) => setRatePerPlay(e.target.value)} />
+          <Field label="PLATFORM FEE (BPS)" type="number" placeholder={String(config?.[1] ?? "")} value={feeBps} onChange={(e) => setFeeBps(e.target.value)} />
+          <Field label="MINIMUM TOP UP (mUSD)" type="text" placeholder={config ? formatUnits(config[2], 6) : ""} value={minTopUp} onChange={(e) => setMinTopUp(e.target.value)} />
         </div>
         <Button variant="purple" onClick={handleSave} disabled={isPending}>
           {isPending ? "MENYIMPAN..." : "SIMPAN PARAMETER"}
         </Button>
       </Card>
 
-      <Card eyebrow="DEV / DEMO">
+      <Card eyebrow="TARIK TREASURY" className="mb-8 max-w-none">
         <p className="text-lg text-dim mb-4">
-          Percepat simulasi bulan berjalan tanpa menunggu — mereset kuota play semua dompet secara lazy.
+          Fee platform yang terkumpul (8% tiap play) — bukan dana talangan, murni revenue platform.
         </p>
-        <Button variant="warn" onClick={handleAdvancePeriod} disabled={isPending}>
-          ADVANCE PERIOD
+        <div className="flex gap-4 flex-wrap items-end">
+          <Field label="TUJUAN (ADDRESS)" placeholder="0x..." value={withdrawTo} onChange={(e) => setWithdrawTo(e.target.value)} />
+          <Field label="JUMLAH (mUSD)" type="text" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} />
+        </div>
+        <Button variant="success" onClick={handleWithdrawTreasury} disabled={isPending || !withdrawTo || !withdrawAmount}>
+          {isPending ? "MEMPROSES..." : "TARIK TREASURY"}
         </Button>
       </Card>
     </main>

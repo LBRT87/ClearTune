@@ -6,7 +6,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 // Called from the player UI when a track finishes (or is skipped). Writes the
 // play on-chain via the authorized backend signer, then write-throughs the
-// result into Postgres with the correct funded_by — see project-spec.md 4.2
+// result into Postgres with the correct status — see project-spec.md 4.2
 // and section 9 ("Trust layer tidak pernah dipanggil untuk memutuskan apakah
 // pembayaran diproses").
 export async function POST(req: NextRequest) {
@@ -34,13 +34,17 @@ export async function POST(req: NextRequest) {
 
   const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
 
-  let fundedBy: "subscription" | "treasury" = "subscription";
+  if (receipt.status !== "success") {
+    return NextResponse.json({ error: "reportPlays reverted on-chain", txHash }, { status: 502 });
+  }
+
+  let status: "paid" | "skipped_low_balance" = "skipped_low_balance";
   for (const log of receipt.logs) {
     try {
-      const decoded = decodeEventLog({ abi: clearTuneAbi, data: log.data, topics: log.topics, eventName: "PlayReported" });
-      fundedBy = decoded.args.fundedBy === 1 ? "treasury" : "subscription";
+      const decoded = decodeEventLog({ abi: clearTuneAbi, data: log.data, topics: log.topics, eventName: "PlayPaid" });
+      if (decoded.eventName === "PlayPaid") status = "paid";
     } catch {
-      // not a PlayReported log, ignore
+      // not a PlayPaid log, ignore (could be PlaySkippedLowBalance, or unrelated)
     }
   }
 
@@ -50,10 +54,9 @@ export async function POST(req: NextRequest) {
     song_id: songId,
     duration_played: durationPlayed ?? null,
     completed: completed ?? false,
-    funded_by: fundedBy,
+    status,
     tx_hash: txHash,
-    status: receipt.status === "success" ? "confirmed" : "failed",
   });
 
-  return NextResponse.json({ txHash, fundedBy, status: receipt.status });
+  return NextResponse.json({ txHash, status });
 }

@@ -5,7 +5,7 @@ import { LiveCursors } from "@/components/landing/LiveCursors";
 import { Marquee } from "@/components/landing/Marquee";
 import { PixelIcon } from "@/components/landing/PixelIcon";
 import {
-  CapVisual,
+  BalanceVisual,
   EarningsVisual,
   TrustVisual,
 } from "@/components/landing/ProductVisuals";
@@ -158,7 +158,7 @@ export default function Home() {
               </p>
             </div>
             <div className="pb-visual">
-              <CapVisual />
+              <BalanceVisual />
             </div>
           </div>
 

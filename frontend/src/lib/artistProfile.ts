@@ -3,7 +3,7 @@ import { getPublicClient } from "./serverWallet";
 import { CLEARTUNE_ADDRESS, clearTuneAbi } from "./contracts";
 import { supabase } from "./supabase";
 
-export type ArtistSongStat = SongRow & { totalPlays: number; subscriptionPlays: number; treasuryPlays: number };
+export type ArtistSongStat = SongRow & { totalPlays: number; skippedPlays: number };
 
 export type ArtistProfile = {
   wallet: string;
@@ -35,16 +35,15 @@ export async function getArtistProfile(wallet: `0x${string}`): Promise<ArtistPro
 
   const songIds = mySongs.map((s) => s.song_id_onchain);
   const { data: plays } = songIds.length
-    ? await supabase.from("plays").select("song_id, funded_by").in("song_id", songIds)
+    ? await supabase.from("plays").select("song_id, status").in("song_id", songIds)
     : { data: [] };
 
   const songs: ArtistSongStat[] = mySongs.map((s) => {
     const rows = (plays ?? []).filter((p) => p.song_id === s.song_id_onchain);
     return {
       ...s,
-      totalPlays: rows.length,
-      subscriptionPlays: rows.filter((p) => p.funded_by === "subscription").length,
-      treasuryPlays: rows.filter((p) => p.funded_by === "treasury").length,
+      totalPlays: rows.filter((p) => p.status === "paid").length,
+      skippedPlays: rows.filter((p) => p.status === "skipped_low_balance").length,
     };
   });
 

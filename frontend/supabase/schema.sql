@@ -3,7 +3,7 @@
 -- creating the project. Writes happen write-through from the Next.js API
 -- routes at play-report/withdraw time — there is no external indexer.
 
-create type funded_by_t as enum ('subscription', 'treasury');
+create type play_status_t as enum ('paid', 'skipped_low_balance');
 
 create table if not exists songs (
   id              bigserial primary key,
@@ -16,6 +16,21 @@ create table if not exists songs (
   created_at      timestamptz not null default now()
 );
 
+-- Off-chain-only metadata for each on-chain payee: the contract's `payees`/
+-- `bps` arrays are the source of truth for money, this is display metadata
+-- (name, role) matched to them by array index. See project-spec.md section
+-- 4.3 "Catatan kredit".
+create table if not exists song_credits (
+  id           bigserial primary key,
+  song_id      bigint not null references songs (song_id_onchain),
+  payee_index  integer not null,
+  wallet       text not null,
+  role         text not null,
+  display_name text,
+  bps          integer not null
+);
+create index if not exists song_credits_song_idx on song_credits (song_id);
+
 create table if not exists plays (
   id               bigserial primary key,
   wallet           text not null,
@@ -23,9 +38,8 @@ create table if not exists plays (
   played_at        timestamptz not null default now(),
   duration_played  integer, -- seconds
   completed        boolean not null default false,
-  funded_by        funded_by_t not null,
-  tx_hash          text,
-  status           text not null default 'confirmed'
+  status           play_status_t not null,
+  tx_hash          text
 );
 create index if not exists plays_wallet_idx on plays (wallet);
 create index if not exists plays_song_idx on plays (song_id);
@@ -52,7 +66,7 @@ create table if not exists chart_cache (
 
 create table if not exists treasury_log (
   id           bigserial primary key,
-  event_type   text not null, -- 'fee_in' | 'free_play_out' | 'manual_fund'
+  event_type   text not null, -- 'fee_in' | 'treasury_withdrawn'
   amount       numeric(38, 6) not null,
   balance_after numeric(38, 6) not null,
   created_at   timestamptz not null default now()
@@ -101,6 +115,7 @@ create index if not exists funding_edges_to_idx on funding_edges (to_wallet);
 -- like Spotify" product), writes only via the service role key from API
 -- routes.
 alter table songs enable row level security;
+alter table song_credits enable row level security;
 alter table plays enable row level security;
 alter table wallet_stats enable row level security;
 alter table chart_cache enable row level security;
@@ -108,6 +123,7 @@ alter table treasury_log enable row level security;
 alter table funding_edges enable row level security;
 
 create policy "public read songs" on songs for select using (true);
+create policy "public read song_credits" on song_credits for select using (true);
 create policy "public read plays" on plays for select using (true);
 create policy "public read wallet_stats" on wallet_stats for select using (true);
 create policy "public read chart_cache" on chart_cache for select using (true);
@@ -120,14 +136,19 @@ create policy "public read funding_edges" on funding_edges for select using (tru
 alter table songs add column if not exists cover_url text;
 alter table playlists add column if not exists cover_url text;
 
--- Storage bucket for song/playlist cover images, uploaded directly from the
--- client (same pattern as the pre-existing `audio` bucket). Public bucket,
--- public read, public insert — matches this app's "no signature-based auth"
--- posture elsewhere (see the playlists comment above). If you'd rather do
--- this by hand, it's Storage -> New bucket -> name `covers`, toggle Public.
+-- Storage buckets for song audio and cover images, uploaded directly from
+-- the client. Public bucket, public read, public insert — matches this
+-- app's "no signature-based auth" posture elsewhere (see the playlists
+-- comment above). If you'd rather do this by hand, it's Storage -> New
+-- bucket -> name `audio` / `covers`, toggle Public.
 insert into storage.buckets (id, name, public)
-values ('covers', 'covers', true)
+values ('audio', 'audio', true), ('covers', 'covers', true)
 on conflict (id) do nothing;
+
+create policy "public read audio" on storage.objects
+  for select using (bucket_id = 'audio');
+create policy "public upload audio" on storage.objects
+  for insert with check (bucket_id = 'audio');
 
 create policy "public read covers" on storage.objects
   for select using (bucket_id = 'covers');

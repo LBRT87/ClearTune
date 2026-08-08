@@ -14,8 +14,9 @@ export async function GET(req: NextRequest) {
 
   const { data: plays, error } = await db
     .from("plays")
-    .select("song_id, played_at, completed, funded_by, songs(artist)")
+    .select("song_id, played_at, completed, status, songs(artist)")
     .eq("wallet", wallet)
+    .eq("status", "paid")
     .order("played_at", { ascending: true });
 
   if (error) {
@@ -34,7 +35,6 @@ export async function GET(req: NextRequest) {
 
   const timestamps = plays.map((p) => new Date(p.played_at as string).getTime());
   const skipRatio = plays.filter((p) => !p.completed).length / plays.length;
-  const treasuryRatio = plays.filter((p) => p.funded_by === "treasury").length / plays.length;
 
   const { data: walletRow } = await db
     .from("wallet_stats")
@@ -51,8 +51,6 @@ export async function GET(req: NextRequest) {
     playTimestampsMs: timestamps,
     skipRatio,
     walletAgeDays,
-    isOverCap: treasuryRatio > 0.5,
-    fundedByTreasuryRatio: treasuryRatio,
   };
 
   const result = computeTrustScore(features);

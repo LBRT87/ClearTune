@@ -8,8 +8,6 @@ export type WalletFeatures = {
   playTimestampsMs: number[];
   skipRatio: number; // 0..1, share of plays not completed
   walletAgeDays: number;
-  isOverCap: boolean; // true if most of this wallet's recent plays were treasury-funded
-  fundedByTreasuryRatio: number; // 0..1
 };
 
 export type TrustScoreResult = {
@@ -25,8 +23,11 @@ export type TrustScoreResult = {
 
 /**
  * Combines hand-written heuristics (no ML model) into a single 0..1 trust score.
- * Free plays past the cap are the juiciest farming target (no cost to the attacker),
- * so `isOverCap` tightens the score rather than loosening it — see project-spec.md 5.3.
+ * Every play is always paid now (project-spec.md 5.3) — there's no more "over cap,
+ * free, higher farming incentive" tier, so there's no special-cased stricter branch
+ * here either. The remaining farming incentive is wash trading (funding many wallets
+ * to inflate one song's play count), which is caught separately by the funding-graph
+ * cycle detection, not by this score.
  */
 export function computeTrustScore(features: WalletFeatures, cohortAgesDays: number[] = []): TrustScoreResult {
   const entropy = normalizedEntropy(features.playCountsByArtist); // 0..1, higher = more diverse listening
@@ -38,15 +39,10 @@ export function computeTrustScore(features: WalletFeatures, cohortAgesDays: numb
   const ageZ = cohortAgesDays.length > 2 ? zScore(features.walletAgeDays, cohortAgesDays) : 0;
   const ageBonus = zScoreToUnit(ageZ);
 
-  let score = entropy * 0.35 + cvUnit * 0.3 + skipPenalty * 0.2 + ageBonus * 0.15;
-
-  if (features.isOverCap) {
-    // Stricter bar once plays are treasury-funded: scale down and pull toward the
-    // low end so a borderline wallet reads as suspicious rather than passing.
-    score = score * 0.7;
-  }
-
-  score = Math.max(0, Math.min(1, score));
+  const score = Math.max(
+    0,
+    Math.min(1, entropy * 0.35 + cvUnit * 0.3 + skipPenalty * 0.2 + ageBonus * 0.15),
+  );
 
   return {
     wallet: features.wallet,
