@@ -18,3 +18,14 @@ export function PixelPageLoader({ label }: { label?: string }) {
     </main>
   );
 }
+
+/* Untuk route di luar shell `(app)` — landing dan layar auth tidak punya
+   sidebar/topbar, jadi tidak ada geometri yang bisa dipinjam: layarnya
+   diisi penuh supaya tidak terlihat seperti halaman yang gagal render. */
+export function PixelScreenLoader({ label }: { label?: string }) {
+  return (
+    <div className="min-h-[100dvh] grid place-items-center bg-void px-6">
+      <PixelLoader label={label} />
+    </div>
+  );
+}

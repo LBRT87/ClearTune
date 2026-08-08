@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Press_Start_2P, VT323 } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { Providers } from "./providers";
+import { RouteProgress } from "@/components/ui/RouteProgress";
 
 const pressStart = Press_Start_2P({
   weight: "400",
@@ -31,6 +33,11 @@ export default function RootLayout({
     // <body> tidak terbaca di sana — judul & paragraf jatuh ke font sans.
     <html lang="en" className={`${pressStart.variable} ${vt323.variable}`}>
       <body className="antialiased">
+        {/* useSearchParams butuh Suspense boundary, kalau tidak seluruh
+            halaman statis ikut turun ke render sisi klien. */}
+        <Suspense fallback={null}>
+          <RouteProgress />
+        </Suspense>
         <Providers>{children}</Providers>
       </body>
     </html>

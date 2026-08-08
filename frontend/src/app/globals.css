@@ -444,6 +444,33 @@
     box-shadow: 3px 3px 0 #3a3a3a;
   }
 
+  /* Route progress — blok-blok pixel berbaris di puncak layar selama
+     pindah halaman. Kotak, tanpa easing, sama seperti .pixel-loader-dot. */
+  .route-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    z-index: 60;
+    background: repeating-linear-gradient(
+      90deg,
+      #8b5cf6 0 12px,
+      transparent 12px 24px
+    );
+    animation: route-progress-march 0.4s steps(4) infinite;
+  }
+  @keyframes route-progress-march {
+    to {
+      background-position: 24px 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .route-progress {
+      animation: none;
+    }
+  }
+
   /* Scanline sweep, used behind the landing-page connect gate. */
   .scanline {
     position: relative;
