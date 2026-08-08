@@ -118,7 +118,7 @@ export function RolePicker({
           </div>
 
           <p className="small" style={{ marginTop: "var(--a4)", color: "var(--dimmer)" }}>
-            Your role decides where you land, not what you're allowed to do.
+            Your role decides where you land, not what you&apos;re allowed to do.
           </p>
         </div>
       </div>

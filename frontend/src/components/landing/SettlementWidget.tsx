@@ -336,7 +336,7 @@ export function SettlementWidget() {
           <code>platformFeeBps</code> {PLATFORM_FEE_BPS}, total split {TOTAL_BPS} bps,
           6-decimal mUSD units. One play counts after{" "}
           {secs(threshold)}s heard — shortened from the 30-second industry convention to
-          fit inside a single demo. The parameters above match what's live on the Monad
+          fit inside a single demo. The parameters above match what&apos;s live on the Monad
           testnet contract; the numbers in this widget are computed in the browser, not
           read directly from chain.
         </p>

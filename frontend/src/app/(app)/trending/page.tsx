@@ -12,7 +12,7 @@ export default async function TrendingPage() {
       <p className="text-dim text-lg mb-10 max-w-[60ch]">
         Ranked by trust score × log(plays), not raw play count — one wallet farming a song
         thousands of times only adds a little to its score (diminishing returns), and the
-        lower that wallet's trust score, the smaller its contribution.
+        lower that wallet&apos;s trust score, the smaller its contribution.
       </p>
 
       {!hasPlays && (

@@ -66,7 +66,7 @@ export default function Home() {
               LISTEN NOW
             </a>
             <a className="btn btn-ghost" href="/signup?role=artist">
-              I'M AN ARTIST
+              I&apos;M AN ARTIST
             </a>
           </div>
 
@@ -88,8 +88,8 @@ export default function Home() {
             </h2>
             <p className="lede">
               Royalties are batched every six months. The whole time, the song is working,
-              but the money sits in someone else's hands. The breakdown isn't disclosed, the
-              cuts aren't explained, and until it's paid out there's no way to verify the
+              but the money sits in someone else&apos;s hands. The breakdown isn&apos;t disclosed, the
+              cuts aren&apos;t explained, and until it&apos;s paid out there&apos;s no way to verify the
               math is right.
             </p>
           </div>
@@ -172,7 +172,7 @@ export default function Home() {
                 <i>02</i> ARTIST SIDE
               </div>
               <h3 className="pb-title">
-                THE MONEY'S
+                THE MONEY&apos;S
                 <br />
                 <em>ALREADY THERE.</em>
               </h3>
@@ -195,7 +195,7 @@ export default function Home() {
               <h3 className="pb-title">
                 FAKE PLAYS
                 <br />
-                <em>DON'T CLIMB.</em>
+                <em>DON&apos;T CLIMB.</em>
               </h3>
               <p className="lede">
                 The chart is computed from trust-weighted plays, not raw counts. A wallet

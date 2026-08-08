@@ -25,7 +25,7 @@ export function BalanceVisual() {
 export function EarningsVisual() {
   return (
     <>
-      <div className="pv-head eyebrow">REKAH'S BALANCE</div>
+      <div className="pv-head eyebrow">REKAH&apos;S BALANCE</div>
       <div className="row">
         <span className="k">Earned today</span>
         <span className="v">0.088000</span>
