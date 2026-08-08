@@ -16,8 +16,8 @@ export type Profile = {
  *  `?role=` di URL memakai bahasa UI. Penerjemahan itu tugas lapisan
  *  tampilan, dan ini satu-satunya tempatnya. */
 export function roleFromParam(param: string | null | undefined): Role | null {
-  if (param === "musisi") return "artist";
-  if (param === "pendengar") return "listener";
+  if (param === "artist") return "artist";
+  if (param === "listener") return "listener";
   return null;
 }
 

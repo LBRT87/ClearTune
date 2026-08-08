@@ -55,7 +55,7 @@ export async function getProfile(did: string): Promise<Profile | null> {
     .eq("privy_did", did)
     .maybeSingle();
 
-  if (error) throw new Error(`gagal membaca profiles: ${error.message}`);
+  if (error) throw new Error(`failed to read profiles: ${error.message}`);
   return (data as Profile | null) ?? null;
 }
 
@@ -95,7 +95,7 @@ export async function createProfile(input: CreateInput): Promise<CreateResult> {
     if (error.code === "23505" && error.message.includes("display_name")) {
       return { ok: false, reason: "name-taken" };
     }
-    throw new Error(`gagal menulis profiles: ${error.message}`);
+    throw new Error(`failed to write profiles: ${error.message}`);
   }
 
   return { ok: true, profile: data as Profile };

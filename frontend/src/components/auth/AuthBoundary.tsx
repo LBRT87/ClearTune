@@ -47,13 +47,13 @@ export function AuthBoundary({
     const search = typeof window === "undefined" ? "" : window.location.search;
 
     if (want === "guest") {
-      if (status === "needs-role") router.replace(`/pilih-peran${search}`);
+      if (status === "needs-role") router.replace(`/choose-role${search}`);
       if (status === "ready" && profile) router.replace(homeFor(profile.role));
       return;
     }
 
     /* want === "role-picker" */
-    if (status === "guest") router.replace(`/daftar${search}`);
+    if (status === "guest") router.replace(`/signup${search}`);
     if (status === "ready" && profile) router.replace(homeFor(profile.role));
   }, [status, profile, want, router]);
 

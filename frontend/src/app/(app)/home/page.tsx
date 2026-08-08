@@ -67,21 +67,21 @@ export default function HomePage() {
             onClick={() => setFilter("all")}
             className={`filter-pill ${filter === "all" ? "filter-pill-active" : ""}`}
           >
-            SEMUA
+            ALL
           </button>
           <button
             type="button"
             onClick={() => setFilter("playlists")}
             className={`filter-pill ${filter === "playlists" ? "filter-pill-active" : ""}`}
           >
-            PLAYLIST
+            PLAYLISTS
           </button>
           <button
             type="button"
             onClick={() => setFilter("songs")}
             className={`filter-pill ${filter === "songs" ? "filter-pill-active" : ""}`}
           >
-            LAGU
+            SONGS
           </button>
         </div>
       </div>
@@ -89,7 +89,7 @@ export default function HomePage() {
       {showPlaylists && (
         <section className="mb-14">
           <div className="flex items-baseline justify-between mb-6">
-            <h2 className="font-display text-sm">PLAYLIST KAMU</h2>
+            <h2 className="font-display text-sm">YOUR PLAYLISTS</h2>
             <Link href="/playlists" className="text-dim font-display text-[9px] hover:text-purple">
               SHOW ALL
             </Link>
@@ -100,18 +100,18 @@ export default function HomePage() {
               <div className="media-cover cover-frame flex items-center justify-center bg-void">
                 <PixelIcon name="plus" size={40} className="text-dim" />
               </div>
-              <div className="media-title text-dim">MASUK</div>
-              <div className="media-sub">buat lihat playlist kamu</div>
+              <div className="media-title text-dim">LOG IN</div>
+              <div className="media-sub">to see your playlists</div>
             </button>
           )}
 
-          {isConnected && playlists === null && <PixelLoader label="MEMUAT PLAYLIST" />}
+          {isConnected && playlists === null && <PixelLoader label="LOADING PLAYLISTS" />}
 
           {isConnected && playlists !== null && playlists.length === 0 && (
             <p className="text-dim text-lg">
-              Belum ada playlist.{" "}
+              No playlists yet.{" "}
               <Link href="/playlists" className="text-purple underline">
-                Buat satu
+                Create one
               </Link>
               .
             </p>
@@ -130,7 +130,7 @@ export default function HomePage() {
                   </div>
                   <div className="media-title">{p.name.toUpperCase()}</div>
                   <div className="media-sub line-clamp-2">
-                    {formatArtistList(playlistArtists[p.id] ?? []) ?? new Date(p.created_at).toLocaleDateString("id-ID")}
+                    {formatArtistList(playlistArtists[p.id] ?? []) ?? new Date(p.created_at).toLocaleDateString("en-US")}
                   </div>
                 </Link>
               ))}
@@ -142,13 +142,13 @@ export default function HomePage() {
       {showSongs && (
         <section>
           <div className="flex items-baseline justify-between mb-6">
-            <h2 className="font-display text-sm">LAGU DI KATALOG</h2>
+            <h2 className="font-display text-sm">SONGS IN THE CATALOG</h2>
             <Link href="/catalog" className="text-dim font-display text-[9px] hover:text-purple">
               SHOW ALL
             </Link>
           </div>
 
-          {songs.length === 0 && <PixelLoader label="MEMUAT LAGU" />}
+          {songs.length === 0 && <PixelLoader label="LOADING SONGS" />}
 
           {songs.length > 0 && (
             <div className="media-row">

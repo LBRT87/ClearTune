@@ -100,12 +100,12 @@ export function ArtistStoryBar() {
     <section className="card mb-10">
       {stories === null && (
         <div className="flex justify-center">
-          <PixelLoader label="MEMUAT STORY" />
+          <PixelLoader label="LOADING STORIES" />
         </div>
       )}
 
       {stories !== null && perArtist.length === 0 && (
-        <p className="text-dim text-lg text-center">Belum ada story dari artis dalam 24 jam terakhir.</p>
+        <p className="text-dim text-lg text-center">No stories from artists in the last 24 hours.</p>
       )}
 
       {perArtist.length > 0 && (

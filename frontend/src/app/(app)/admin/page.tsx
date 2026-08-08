@@ -62,7 +62,7 @@ export default function AdminPage() {
   if (!isConnected) {
     return (
       <main className="max-w-[1040px] mx-auto px-5 py-12">
-        <StatusLine variant="info" label="HUBUNGKAN DOMPET" detail="Sambungkan dompet owner untuk masuk panel admin." />
+        <StatusLine variant="info" label="CONNECT WALLET" detail="Connect the owner wallet to access the admin panel." />
       </main>
     );
   }
@@ -70,50 +70,50 @@ export default function AdminPage() {
   if (!isOwner) {
     return (
       <main className="max-w-[1040px] mx-auto px-5 py-12">
-        <StatusLine variant="err" label="AKSES DITOLAK" detail="Hanya owner kontrak yang bisa mengubah parameter." />
+        <StatusLine variant="err" label="ACCESS DENIED" detail="Only the contract owner can change parameters." />
       </main>
     );
   }
 
   return (
     <main className="max-w-[1040px] mx-auto px-5 py-12">
-      <h1 className="font-display text-xl mb-8">PANEL ADMIN</h1>
+      <h1 className="font-display text-xl mb-8">ADMIN PANEL</h1>
 
       <div className="grid md:grid-cols-2 gap-6 mb-10">
-        <Card eyebrow="KESEHATAN KAS">
-          <StatRow label="Saldo treasury (fee terkumpul)" value={`${treasury !== undefined ? formatUnits(treasury as bigint, 6) : "—"} mUSD`} accent />
+        <Card eyebrow="TREASURY HEALTH">
+          <StatRow label="Treasury balance (fees collected)" value={`${treasury !== undefined ? formatUnits(treasury as bigint, 6) : "—"} mUSD`} accent />
           <Button variant="outline" className="mt-4 w-auto" onClick={() => refetchTreasury()}>
             REFRESH
           </Button>
         </Card>
-        <Card eyebrow="PARAMETER SAAT INI">
+        <Card eyebrow="CURRENT PARAMETERS">
           <StatRow label="Rate per play" value={`${config ? formatUnits(config[0], 6) : "—"} mUSD`} />
           <StatRow label="Platform fee" value={`${config ? config[1] / 100 : "—"}%`} />
           <StatRow label="Minimum top up" value={`${config ? formatUnits(config[2], 6) : "—"} mUSD`} />
         </Card>
       </div>
 
-      <Card eyebrow="UBAH PARAMETER" className="mb-8 max-w-none">
+      <Card eyebrow="CHANGE PARAMETERS" className="mb-8 max-w-none">
         <div className="flex gap-4 flex-wrap items-end">
           <Field label="RATE PER PLAY (mUSD)" type="text" placeholder={config ? formatUnits(config[0], 6) : ""} value={ratePerPlay} onChange={(e) => setRatePerPlay(e.target.value)} />
           <Field label="PLATFORM FEE (BPS)" type="number" placeholder={String(config?.[1] ?? "")} value={feeBps} onChange={(e) => setFeeBps(e.target.value)} />
           <Field label="MINIMUM TOP UP (mUSD)" type="text" placeholder={config ? formatUnits(config[2], 6) : ""} value={minTopUp} onChange={(e) => setMinTopUp(e.target.value)} />
         </div>
         <Button variant="purple" onClick={handleSave} disabled={isPending}>
-          {isPending ? "MENYIMPAN..." : "SIMPAN PARAMETER"}
+          {isPending ? "SAVING..." : "SAVE PARAMETERS"}
         </Button>
       </Card>
 
-      <Card eyebrow="TARIK TREASURY" className="mb-8 max-w-none">
+      <Card eyebrow="WITHDRAW TREASURY" className="mb-8 max-w-none">
         <p className="text-lg text-dim mb-4">
-          Fee platform yang terkumpul (8% tiap play) — bukan dana talangan, murni revenue platform.
+          Platform fees collected (8% of every play) — not a bailout fund, pure platform revenue.
         </p>
         <div className="flex gap-4 flex-wrap items-end">
-          <Field label="TUJUAN (ADDRESS)" placeholder="0x..." value={withdrawTo} onChange={(e) => setWithdrawTo(e.target.value)} />
-          <Field label="JUMLAH (mUSD)" type="text" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} />
+          <Field label="DESTINATION (ADDRESS)" placeholder="0x..." value={withdrawTo} onChange={(e) => setWithdrawTo(e.target.value)} />
+          <Field label="AMOUNT (mUSD)" type="text" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} />
         </div>
         <Button variant="success" onClick={handleWithdrawTreasury} disabled={isPending || !withdrawTo || !withdrawAmount}>
-          {isPending ? "MEMPROSES..." : "TARIK TREASURY"}
+          {isPending ? "PROCESSING..." : "WITHDRAW TREASURY"}
         </Button>
       </Card>
     </main>

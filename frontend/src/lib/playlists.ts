@@ -55,5 +55,5 @@ export async function getPlaylistArtists(id: number): Promise<string[]> {
 export function formatArtistList(artists: string[]): string | null {
   if (artists.length === 0) return null;
   const shown = artists.slice(0, 3).join(", ");
-  return artists.length > 3 ? `${shown} dan lainnya` : shown;
+  return artists.length > 3 ? `${shown} and others` : shown;
 }

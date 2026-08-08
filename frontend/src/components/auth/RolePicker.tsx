@@ -1,24 +1,5 @@
 "use client";
 
-/* Layar pilih peran — VARIAN C dari prototipe 03: satu kolom, dua langkah.
-
-   Langkah 1 = dua kartu. Langkah 2 = nama panggung (musisi) atau
-   konfirmasi nama acak (pendengar).
-
-   Kenapa dua langkah: field nama tidak pernah berbagi layar dengan
-   kartunya, jadi masalah "layar berubah tinggi saat kartu diklik" hilang
-   dari akarnya alih-alih diakali. Ongkosnya satu layar tambahan.
-
-   Aturan yang mengikat di sini (semua diturunkan di tiket 03):
-   - Tidak ada satu pun elemen Press Start 2P di atas 24px. Judul layar
-     turun jadi eyebrow + satu kalimat VT323; judul kartu h3 (15px).
-     Display type milik naratif, dan layar keputusan tidak punya narasi.
-   - Ungu-vs-abu adalah keseluruhan bahasanya. Kartu kedua tidak punya
-     aksen sendiri — hijau sudah berarti "uang bertambah" di seluruh
-     produk.
-   - Urutan kartu TIDAK PERNAH diubah oleh `?role=`. MUSISI selalu di
-     atas; yang kedua akan terbaca sebagai cadangan kalau ditukar. */
-
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { homeFor, type Role } from "@/lib/profile-types";
@@ -27,15 +8,15 @@ import { randomListenerName } from "@/lib/display-name";
 const ROLES: { key: Role; title: string; why: string; dest: string }[] = [
   {
     key: "artist",
-    title: "MUSISI",
-    why: "Kamu unggah lagu, tentukan siapa dapat berapa, dan uangnya masuk ke dompetmu tiap kali diputar.",
-    dest: "→ /studio",
+    title: "ARTIST",
+    why: "Upload your songs, set who gets what, and money lands in your wallet every time it plays.",
+    dest: "→ /dashboard",
   },
   {
     key: "listener",
-    title: "PENDENGAR",
-    why: "Kamu dengar, dan tiap putaran mengalir ke orang yang membuat lagunya. Tidak ada yang perlu kamu atur.",
-    dest: "→ /app",
+    title: "LISTENER",
+    why: "You listen, and every play sends money to whoever made it. Nothing for you to manage.",
+    dest: "→ /home",
   },
 ];
 
@@ -43,7 +24,7 @@ export function RolePicker({
   preselected,
   onDone,
 }: {
-  /** Dari `?role=` milik CTA landing. MEMILIHKAN, tidak mengunci. */
+  /** From the landing CTA's `?role=`. Preselects, doesn't lock in. */
   preselected: Role | null;
   onDone: () => void;
 }) {
@@ -55,9 +36,6 @@ export function RolePicker({
   const [saving, setSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  /* Diacak SEKALI di klien lalu dibawa ke API. Orang melihat nama ini di
-     langkah 2 sebelum masuk — kalau server mengacak sendiri, yang tampil
-     bukan yang tersimpan. */
   const [listenerName] = useState(randomListenerName);
 
   useEffect(() => {
@@ -75,7 +53,7 @@ export function RolePicker({
     const displayName = picked === "artist" ? name.trim() : listenerName;
 
     if (picked === "artist" && !displayName) {
-      setErr("Isi dulu nama panggungmu.");
+      setErr("Enter your artist name first.");
       return;
     }
 
@@ -89,18 +67,14 @@ export function RolePicker({
       });
 
       if (res.status === 409) {
-        /* Satu-satunya cara pendaftaran bisa gagal, dan letaknya di langkah
-           terakhir. Galatnya mendarat DI DALAM field: orang tetap di
-           langkah 2, peran yang sudah dipilih tidak hilang, dan dia tidak
-           dilempar keluar setelah repot login. */
-        setErr(`“${displayName}” sudah dipakai. Coba nama lain.`);
+        setErr(`"${displayName}" is already taken. Try another name.`);
         setSaving(false);
         inputRef.current?.focus();
         return;
       }
 
       if (!res.ok) {
-        setErr("Gagal menyimpan. Coba lagi sebentar.");
+        setErr("Couldn't save. Try again in a moment.");
         setSaving(false);
         return;
       }
@@ -108,22 +82,22 @@ export function RolePicker({
       onDone();
       router.replace(homeFor(picked));
     } catch {
-      setErr("Gagal menyimpan. Coba lagi sebentar.");
+      setErr("Couldn't save. Try again in a moment.");
       setSaving(false);
     }
   }
 
-  /* ── LANGKAH 1 ── */
+  /* ── STEP 1 ── */
   if (step === 1) {
     return (
       <div className="auth-screen">
         <div className="auth-col">
           <div className="auth-steps" style={{ marginBottom: "var(--a3)" }}>
             <b>1</b>—<span>2</span>
-            <span style={{ marginLeft: 10 }}>LANGKAH TERAKHIR</span>
+            <span style={{ marginLeft: 10 }}>LAST STEP</span>
           </div>
           <p className="lede" style={{ marginBottom: "var(--a4)", color: "var(--ink)" }}>
-            Kamu di sini sebagai siapa?
+            Who are you here as?
           </p>
 
           <div style={{ width: "100%", display: "grid", gap: "var(--a2)" }}>
@@ -144,37 +118,37 @@ export function RolePicker({
           </div>
 
           <p className="small" style={{ marginTop: "var(--a4)", color: "var(--dimmer)" }}>
-            Peran menentukan kamu mendarat di mana, bukan apa yang boleh kamu lakukan.
+            Your role decides where you land, not what you're allowed to do.
           </p>
         </div>
       </div>
     );
   }
 
-  /* ── LANGKAH 2 ── */
+  /* ── STEP 2 ── */
   const isArtist = picked === "artist";
   return (
     <div className="auth-screen">
       <div className="auth-col">
         <div className="auth-steps" style={{ marginBottom: "var(--a3)" }}>
           <span>1</span>—<b>2</b>
-          <span style={{ marginLeft: 10 }}>{isArtist ? "MUSISI" : "PENDENGAR"}</span>
+          <span style={{ marginLeft: 10 }}>{isArtist ? "ARTIST" : "LISTENER"}</span>
         </div>
         <p className="lede" style={{ marginBottom: "var(--a4)", color: "var(--ink)" }}>
-          {isArtist ? "Dengan nama siapa lagumu terbit?" : "Tinggal satu ketukan."}
+          {isArtist ? "What name should your songs be published under?" : "Just one more tap."}
         </p>
 
         <div style={{ width: "100%", display: "grid", gap: "var(--a4)" }}>
           {isArtist ? (
             <div className={`field${err ? " bad" : ""}`}>
-              <label htmlFor="stage-name">NAMA PANGGUNG</label>
+              <label htmlFor="stage-name">ARTIST NAME</label>
               <input
                 id="stage-name"
                 ref={inputRef}
                 value={name}
                 maxLength={24}
                 autoComplete="off"
-                placeholder="mis. hindia"
+                placeholder="e.g. hindia"
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && submit()}
               />
@@ -185,18 +159,18 @@ export function RolePicker({
                 </div>
               ) : (
                 <div className="hint">
-                  Nama ini ikut membeku di kredit tiap lagu yang kamu terbitkan.
+                  This name sticks to the credits of every song you publish.
                 </div>
               )}
             </div>
           ) : (
             <div className="ph" style={{ textAlign: "left", borderColor: "#3a3a3a" }}>
-              <div className="tag">NAMA TAMPILANMU</div>
+              <div className="tag">YOUR DISPLAY NAME</div>
               <div className="data" style={{ color: "var(--ink)", fontSize: 26 }}>
                 {listenerName}
               </div>
               <div className="say" style={{ margin: 0 }}>
-                Dibuatkan otomatis. Tidak ada yang perlu kamu isi.
+                Generated automatically. Nothing for you to fill in.
               </div>
               {err && (
                 <div className="err" style={{ marginTop: "var(--a1)" }}>
@@ -214,17 +188,16 @@ export function RolePicker({
           >
             {saving ? (
               <>
-                MENYIMPAN<span className="dots" />
+                SAVING<span className="dots" />
               </>
             ) : isArtist ? (
-              "MASUK KE STUDIO"
+              "GO TO DASHBOARD"
             ) : (
-              "MASUK KE BERANDA"
+              "GO TO HOME"
             )}
           </button>
         </div>
 
-        {/* Kembali TANPA kehilangan peran yang sudah dipilih. */}
         <button
           className="tlink"
           style={{ marginTop: "var(--a3)" }}
@@ -234,7 +207,7 @@ export function RolePicker({
           }}
           disabled={saving}
         >
-          ← ganti peran
+          ← change role
         </button>
       </div>
     </div>

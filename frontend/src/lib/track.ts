@@ -34,5 +34,5 @@ export const mmss = (s: number) => {
   return `${m}:${String(r).padStart(2, "0")}`;
 };
 
-/** 7.63 -> "7,6" — satu desimal, koma desimal Indonesia. */
-export const secs = (s: number) => Math.max(0, s).toFixed(1).replace(".", ",");
+/** 7.63 -> "7.6" — one decimal place. */
+export const secs = (s: number) => Math.max(0, s).toFixed(1);

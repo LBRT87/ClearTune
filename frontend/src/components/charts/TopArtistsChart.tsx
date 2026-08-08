@@ -6,7 +6,7 @@ import type { SupportedArtist } from "@/lib/listenerProfile";
 export function TopArtistsChart({ data }: { data: SupportedArtist[] }) {
   const top = data.slice(0, 8);
   if (top.length === 0) {
-    return <p className="text-dim text-lg py-8">Belum ada musisi yang didukung.</p>;
+    return <p className="text-dim text-lg py-8">No artists supported yet.</p>;
   }
 
   return (

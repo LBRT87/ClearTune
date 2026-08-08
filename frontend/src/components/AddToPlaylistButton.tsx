@@ -28,12 +28,12 @@ export function AddToPlaylistButton({ songId }: { songId: number }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ songId }),
       });
-      if (!res.ok) throw new Error((await res.json()).error ?? "gagal menambahkan");
+      if (!res.ok) throw new Error((await res.json()).error ?? "failed to add");
       setStatus("done");
-      setMessage("Ditambahkan ke playlist.");
+      setMessage("Added to playlist.");
     } catch (err) {
       setStatus("error");
-      setMessage(err instanceof Error ? err.message : "gagal");
+      setMessage(err instanceof Error ? err.message : "failed");
     }
   }
 
@@ -47,24 +47,24 @@ export function AddToPlaylistButton({ songId }: { songId: number }) {
         body: JSON.stringify({ ownerWallet: address, name: newName.trim() }),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "gagal membuat playlist");
+      if (!res.ok) throw new Error(json.error ?? "failed to create playlist");
       await addToPlaylist(json.id);
       setNewName("");
       setPlaylists(await getPlaylistsByOwner(address));
     } catch (err) {
       setStatus("error");
-      setMessage(err instanceof Error ? err.message : "gagal");
+      setMessage(err instanceof Error ? err.message : "failed");
     }
   }
 
   if (!isConnected) {
-    return <StatusLine variant="info" label="HUBUNGKAN DOMPET" detail="Sambungkan dompet untuk simpan ke playlist." />;
+    return <StatusLine variant="info" label="CONNECT WALLET" detail="Connect a wallet to save to a playlist." />;
   }
 
   if (!open) {
     return (
       <Button variant="outline" onClick={() => setOpen(true)}>
-        + TAMBAH KE PLAYLIST
+        + ADD TO PLAYLIST
       </Button>
     );
   }
@@ -83,23 +83,23 @@ export function AddToPlaylistButton({ songId }: { songId: number }) {
       <div className="flex gap-3 items-center flex-wrap">
         <input
           type="text"
-          placeholder="Nama playlist baru"
+          placeholder="New playlist name"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           className="bg-void border-[3px] border-ink text-ink font-mono text-lg px-3 py-2 flex-1 min-w-[180px]"
         />
         <Button variant="purple" onClick={createAndAdd} disabled={status === "busy" || !newName.trim()}>
-          BUAT + TAMBAH
+          CREATE + ADD
         </Button>
       </div>
       {status === "done" && (
         <div className="mt-4">
-          <StatusLine variant="ok" label="TERSIMPAN" detail={message ?? undefined} />
+          <StatusLine variant="ok" label="SAVED" detail={message ?? undefined} />
         </div>
       )}
       {status === "error" && (
         <div className="mt-4">
-          <StatusLine variant="err" label="GAGAL" detail={message ?? undefined} />
+          <StatusLine variant="err" label="FAILED" detail={message ?? undefined} />
         </div>
       )}
     </div>

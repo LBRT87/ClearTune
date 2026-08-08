@@ -1,4 +1,4 @@
-export function PixelLoader({ label = "MEMUAT" }: { label?: string }) {
+export function PixelLoader({ label = "LOADING" }: { label?: string }) {
   return (
     <div className="flex items-center gap-4 py-10">
       <div className="flex gap-2" aria-hidden>

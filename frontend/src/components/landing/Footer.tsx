@@ -18,36 +18,36 @@ export function Footer() {
           <span className="brand">
             CLEARTUNE<i>.</i>
           </span>
-          <p className="small">Royalti musik dibagi tiap play, on-chain.</p>
+          <p className="small">Music royalties split on every play, on-chain.</p>
         </div>
 
-        <nav className="ft-col" aria-label="Bagian halaman">
-          <div className="eyebrow">HALAMAN</div>
-          <a href="#masalah">Masalahnya</a>
-          <a href="#cara-kerja">Cara kerjanya</a>
-          <a href="#bukti">Buktinya</a>
+        <nav className="ft-col" aria-label="Page sections">
+          <div className="eyebrow">PAGE</div>
+          <a href="#problem">The problem</a>
+          <a href="#how-it-works">How it works</a>
+          <a href="#proof">The proof</a>
         </nav>
 
         <div className="ft-col">
-          <div className="eyebrow">PARAMETER KONTRAK</div>
+          <div className="eyebrow">CONTRACT PARAMETERS</div>
           <div className="ft-row">
-            <span>Jaringan</span>
+            <span>Network</span>
             <b>Monad Testnet</b>
           </div>
           <div className="ft-row">
-            <span>Tarif per play</span>
+            <span>Rate per play</span>
             <b>{fmt(RATE_PER_PLAY)}</b>
           </div>
           <div className="ft-row">
-            <span>Fee platform</span>
+            <span>Platform fee</span>
             <b>{PLATFORM_FEE_BPS} bps</b>
           </div>
         </div>
       </div>
 
       <div className="shell ft-base">
-        <span>Prototype Monad Blitz Jakarta &middot; Agustus 2026</span>
-        <span className="ft-status">KONTRAK BELUM TER-DEPLOY</span>
+        <span>Prototype for Monad Blitz Jakarta &middot; August 2026</span>
+        <span className="ft-status">LIVE ON MONAD TESTNET</span>
       </div>
     </footer>
   );

@@ -21,17 +21,17 @@ export function AuthUnavailable() {
     <div className="auth-screen">
       <div className="auth-col">
         <div className="eyebrow" style={{ marginBottom: "var(--a3)" }}>
-          AUTH BELUM DIKONFIGURASI
+          AUTH NOT CONFIGURED
         </div>
         <p className="lede" style={{ marginBottom: "var(--a4)", color: "var(--ink)" }}>
-          `NEXT_PUBLIC_PRIVY_APP_ID` masih kosong.
+          `NEXT_PUBLIC_PRIVY_APP_ID` is still empty.
         </p>
         <p className="small" style={{ marginBottom: "var(--a4)" }}>
-          Isi di `.env.local` (tiket auth/01), lalu jalankan ulang dev server.
-          Landing page tetap jalan normal tanpa ini.
+          Fill it in `.env.local`, then restart the dev server.
+          The landing page still works fine without this.
         </p>
         <Link className="tlink" href="/">
-          ← kembali ke beranda
+          ← back to home
         </Link>
       </div>
     </div>

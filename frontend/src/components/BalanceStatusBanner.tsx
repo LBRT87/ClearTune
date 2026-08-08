@@ -25,9 +25,9 @@ export function BalanceStatusBanner() {
       <div className="status-line status-info mb-8">
         <div className="status-dot" />
         <div>
-          <span className="text-[10px] font-display">HUBUNGKAN DOMPET</span>
+          <span className="text-[10px] font-display">CONNECT WALLET</span>
           <small className="block text-dim mt-1 text-base">
-            Sambungkan dompet untuk melihat saldo dan sisa perkiraan play.
+            Connect a wallet to see your balance and estimated plays left.
           </small>
         </div>
       </div>
@@ -48,18 +48,18 @@ export function BalanceStatusBanner() {
       <div className="flex-1">
         {balanceEmpty ? (
           <>
-            <span className="text-[10px] font-display">SALDO HABIS</span>
+            <span className="text-[10px] font-display">BALANCE EMPTY</span>
             <small className="block text-dim mt-1 text-base">
-              Playback berhenti atau turun ke preview 30 detik. Top up lagi buat lanjut dengar —
-              tidak ada mode gratis.
+              Playback stops or drops to a 30s preview. Top up again to keep listening — no
+              free tier.
             </small>
           </>
         ) : (
           <>
             <span className="text-[10px] font-display">
-              SALDO {formatUnits(balance, 6)} mUSD &middot; ~{remainingPlays.toString()} PLAY TERSISA
+              BALANCE {formatUnits(balance, 6)} mUSD &middot; ~{remainingPlays.toString()} PLAYS LEFT
             </span>
-            <small className="block text-dim mt-1 text-base">Dipotong tiap play dari saldo kamu.</small>
+            <small className="block text-dim mt-1 text-base">Deducted from your balance on every play.</small>
           </>
         )}
       </div>

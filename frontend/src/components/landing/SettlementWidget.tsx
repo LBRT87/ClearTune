@@ -198,10 +198,10 @@ export function SettlementWidget() {
         <div className="eyebrow">
           {playing && <span className="pulse" />}
           {status === "missing"
-            ? "TRACK DEMO BELUM ADA"
+            ? "DEMO TRACK NOT FOUND"
             : playing
-              ? "SEDANG DIPUTAR"
-              : "SIAP DIPUTAR"}
+              ? "NOW PLAYING"
+              : "READY TO PLAY"}
         </div>
         <div className="track-title">{TRACK.title}</div>
         <div className="track-artist">
@@ -224,21 +224,21 @@ export function SettlementWidget() {
             className="playbtn"
             onClick={toggle}
             disabled={status === "missing"}
-            aria-label={playing ? "Jeda" : "Putar"}
+            aria-label={playing ? "Pause" : "Play"}
           >
             {playing ? "❚❚" : "▶"}
           </button>
           <div className="small">
             {status === "missing" ? (
               <>
-                File audio demo tidak bisa dimuat dari <code>public/demo/</code>.
-                Sisa halaman tetap jalan.
+                The demo audio file couldn&apos;t load from <code>public/demo/</code>.
+                The rest of the page still works.
               </>
             ) : (
               <>
-                Tekan play.
+                Press play.
                 <br />
-                Lihat angkanya bergerak.
+                Watch the numbers move.
               </>
             )}
           </div>
@@ -246,39 +246,39 @@ export function SettlementWidget() {
 
         <div className="receipt">
           <div className="eyebrow" style={{ marginBottom: 14 }}>
-            BUKTI TIAP PLAY
+            PROOF PER PLAY
           </div>
           <div className="rc">
-            <span className="k">Play ke-</span>
+            <span className="k">Play #</span>
             <span className="data" aria-live="polite">
               {plays}
             </span>
           </div>
           <div className="rc">
-            <span className="k">Terdengar</span>
-            <span className="data">{secs(heard)} dtk</span>
+            <span className="k">Heard</span>
+            <span className="data">{secs(heard)}s</span>
           </div>
           <div className="rc">
-            <span className="k">Play berikutnya</span>
+            <span className="k">Next play</span>
             <span className="data">
-              {settled ? "saat lagu diulang" : `${secs(remaining)} dtk lagi`}
+              {settled ? "when the song loops" : `${secs(remaining)}s left`}
             </span>
           </div>
           <div className="rc">
-            <span className="k">Didanai</span>
-            <span className="data">saldo pendengar</span>
+            <span className="k">Funded by</span>
+            <span className="data">listener balance</span>
           </div>
           <div className="rc">
             <span className="k">Tx</span>
-            <span className="data pending">simulasi — putar di app buat tx sungguhan</span>
+            <span className="data pending">simulation — play in the app for a real tx</span>
           </div>
           <p
             className="small"
             style={{ marginTop: 14, fontSize: 16, color: "var(--dimmer)", lineHeight: 1.5 }}
           >
-            Di app sungguhan, tiap play di atas memanggil <code>reportPlays</code> sekali di
-            kontrak yang sudah live di Monad testnet, dan meninggalkan satu transaksi yang
-            bisa dibuka siapa saja. Tidak ada rekap, tidak ada laporan bulanan.
+            In the real app, every play above calls <code>reportPlays</code> once on the
+            contract that&apos;s already live on Monad testnet, leaving one transaction
+            anyone can open. No recap, no monthly report.
           </p>
         </div>
       </div>
@@ -290,11 +290,11 @@ export function SettlementWidget() {
           <div className="row head">
             <span className="k" />
             <span className="v">PER PLAY</span>
-            <span className="v sess">SESI INI</span>
+            <span className="v sess">THIS SESSION</span>
           </div>
 
           <div className="row">
-            <span className="k">Tarif per play</span>
+            <span className="k">Rate per play</span>
             <span className="v">{fmt(RATE_PER_PLAY)}</span>
             <span className="v sess">
               {plays > 0 ? fmt(plays * RATE_PER_PLAY) : "—"}
@@ -302,7 +302,7 @@ export function SettlementWidget() {
           </div>
           <div className="row">
             <span className="k">
-              Fee platform <span className="bps">{PLATFORM_FEE_BPS} bps</span>
+              Platform fee <span className="bps">{PLATFORM_FEE_BPS} bps</span>
             </span>
             <span className="v acc">{fmt(fee)}</span>
             <span className="v sess">{plays > 0 ? fmt(plays * fee) : "—"}</span>
@@ -319,9 +319,6 @@ export function SettlementWidget() {
             </div>
           ))}
 
-          {/* Spec §6: total bps harus tepat 10000, dan kontrak menolak lagu
-              yang tidak memenuhinya. Dijumlahkan dari PAYEES, bukan diketik —
-              baris ini tidak bisa berbohong. */}
           <div className="row sum">
             <span className="k">Total split</span>
             <span className="v">{TOTAL_BPS} bps</span>
@@ -329,21 +326,19 @@ export function SettlementWidget() {
           </div>
         </div>
 
-        {/* "DI SESI INI", bukan "HARI INI" — widget hanya menghitung play yang
-            diklik pengunjung di tab ini, bukan total harian platform (tiket 04). */}
         <div className="total">
-          <span className="k">TERBAGI DI SESI INI</span>
+          <span className="k">SPLIT THIS SESSION</span>
           <span className="v">{fmt(accrued)}</span>
         </div>
 
         <p className="disclaimer">
-          Simulasi tarif kontrak — <code>ratePerPlay</code> {RATE_PER_PLAY},{" "}
+          Simulated at contract rates — <code>ratePerPlay</code> {RATE_PER_PLAY},{" "}
           <code>platformFeeBps</code> {PLATFORM_FEE_BPS}, total split {TOTAL_BPS} bps,
-          satuan mUSD 6 desimal. Satu play dihitung setelah{" "}
-          {secs(threshold)} detik terdengar — dipendekkan dari konvensi industri 30
-          detik supaya muat dalam satu demo. Parameter di atas sama dengan yang live di
-          kontrak Monad testnet; angka di widget ini dihitung di browser, bukan dibaca
-          langsung dari chain.
+          6-decimal mUSD units. One play counts after{" "}
+          {secs(threshold)}s heard — shortened from the 30-second industry convention to
+          fit inside a single demo. The parameters above match what's live on the Monad
+          testnet contract; the numbers in this widget are computed in the browser, not
+          read directly from chain.
         </p>
       </div>
     </div>

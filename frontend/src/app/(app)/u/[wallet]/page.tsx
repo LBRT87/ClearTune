@@ -19,12 +19,12 @@ export default async function ListenerProfilePage({ params }: { params: { wallet
 
   return (
     <main className="max-w-[1040px] mx-auto px-5 py-12">
-      <span className="text-dim font-display text-[10px] block mb-4">PROFIL PENDENGAR</span>
+      <span className="text-dim font-display text-[10px] block mb-4">LISTENER PROFILE</span>
       <h1 className="font-display text-lg mb-2 break-all">{short(wallet)}</h1>
       <p className="text-dim text-lg mb-8 break-all">{wallet}</p>
 
       <div className="flex gap-3 flex-wrap mb-10">
-        <Tag variant={balanceEmpty ? "yellow" : "green"}>{balanceEmpty ? "SALDO HABIS" : "SALDO AKTIF"}</Tag>
+        <Tag variant={balanceEmpty ? "yellow" : "green"}>{balanceEmpty ? "BALANCE EMPTY" : "BALANCE ACTIVE"}</Tag>
         {profile.trustScore !== null && (
           <Tag variant={profile.trustScore >= 0.6 ? "green" : profile.trustScore >= 0.3 ? "yellow" : "red"}>
             TRUST SCORE {(profile.trustScore * 100).toFixed(0)}%
@@ -33,17 +33,17 @@ export default async function ListenerProfilePage({ params }: { params: { wallet
       </div>
 
       <div className="grid md:grid-cols-2 gap-6 mb-10">
-        <Card eyebrow="STATUS SALDO">
-          <StatRow label="Saldo saat ini" value={`${formatUnits(profile.balance, 6)} mUSD`} />
-          <StatRow label="Perkiraan sisa play" value={String(remainingPlays)} />
-          <StatRow label="Total play (sepanjang masa)" value={String(profile.totalPlays)} />
+        <Card eyebrow="BALANCE STATUS">
+          <StatRow label="Current balance" value={`${formatUnits(profile.balance, 6)} mUSD`} />
+          <StatRow label="Estimated plays left" value={String(remainingPlays)} />
+          <StatRow label="Total plays (all-time)" value={String(profile.totalPlays)} />
         </Card>
-        <Card eyebrow="PANEL DUKUNGAN">
+        <Card eyebrow="SUPPORT PANEL">
           <p className="text-lg mb-3">
-            Sejauh ini mendukung <b className="text-purple">{profile.supportedArtists.length} musisi</b>
+            Supporting <b className="text-purple">{profile.supportedArtists.length} artists</b> so far
             {topArtist && (
               <>
-                , terbanyak <b className="text-purple">{topArtist.artist}</b> ({topArtist.plays} play)
+                , most of all <b className="text-purple">{topArtist.artist}</b> ({topArtist.plays} plays)
               </>
             )}
             .
@@ -51,22 +51,22 @@ export default async function ListenerProfilePage({ params }: { params: { wallet
         </Card>
       </div>
 
-      <h2 className="font-display text-sm mb-6">ANALITIK DENGAR</h2>
+      <h2 className="font-display text-sm mb-6">LISTENING ANALYTICS</h2>
       <div className="grid md:grid-cols-2 gap-6 mb-10">
-        <Card eyebrow="TREN PLAY HARIAN">
+        <Card eyebrow="DAILY PLAY TREND">
           <ListeningTrendChart data={profile.playsByDay} />
         </Card>
-        <Card eyebrow="TOP MUSISI">
+        <Card eyebrow="TOP ARTISTS">
           <TopArtistsChart data={profile.supportedArtists} />
         </Card>
       </div>
 
-      <h2 className="font-display text-sm mb-6">MUSISI DIDUKUNG</h2>
-      {profile.supportedArtists.length === 0 && <p className="text-dim text-lg">Belum ada riwayat dengar.</p>}
+      <h2 className="font-display text-sm mb-6">ARTISTS SUPPORTED</h2>
+      {profile.supportedArtists.length === 0 && <p className="text-dim text-lg">No listening history yet.</p>}
       <div className="grid md:grid-cols-3 gap-6">
         {profile.supportedArtists.map((a) => (
           <Card key={a.artist} title={a.artist.toUpperCase()}>
-            <StatRow label="Play" value={String(a.plays)} accent />
+            <StatRow label="Plays" value={String(a.plays)} accent />
           </Card>
         ))}
       </div>

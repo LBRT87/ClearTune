@@ -53,32 +53,32 @@ export function TopUpWidget() {
   }
 
   if (!isConnected) {
-    return <StatusLine variant="info" label="HUBUNGKAN DOMPET" detail="Sambungkan dompet untuk top up saldo." />;
+    return <StatusLine variant="info" label="CONNECT WALLET" detail="Connect a wallet to top up your balance." />;
   }
 
   return (
     <div className="grid md:grid-cols-2 gap-6">
-      <Card eyebrow="SALDO">
-        <StatRow label="Saldo mUSD dompet" value={`${mUsdBalance !== undefined ? formatUnits(mUsdBalance as bigint, 6) : "—"} mUSD`} />
-        <StatRow label="Saldo di kontrak (buat play)" value={`${onchainBalance !== undefined ? formatUnits(onchainBalance as bigint, 6) : "—"} mUSD`} accent />
+      <Card eyebrow="BALANCE">
+        <StatRow label="Wallet mUSD balance" value={`${mUsdBalance !== undefined ? formatUnits(mUsdBalance as bigint, 6) : "—"} mUSD`} />
+        <StatRow label="Contract balance (for plays)" value={`${onchainBalance !== undefined ? formatUnits(onchainBalance as bigint, 6) : "—"} mUSD`} accent />
         <Button variant="outline" className="mt-4 w-auto" onClick={handleFaucet} disabled={isPending}>
           FAUCET (+1000 mUSD DEMO)
         </Button>
       </Card>
 
-      <Card eyebrow="TOP UP SALDO">
-        <Field label="JUMLAH (mUSD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
+      <Card eyebrow="TOP UP BALANCE">
+        <Field label="AMOUNT (mUSD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
         {minTopUp !== undefined && (
           <p className="text-dim text-base mb-4">Minimum top up: {formatUnits(minTopUp, 6)} mUSD</p>
         )}
         <Button variant="purple" onClick={handleTopUp} disabled={isPending}>
-          {isPending ? "MEMPROSES..." : "TOP UP"}
+          {isPending ? "PROCESSING..." : "TOP UP"}
         </Button>
 
         <div className="mt-8 pt-6 border-t border-dashed border-dim">
           <p className="text-lg">
-            Saldo habis? Playback berhenti atau turun ke preview — tidak ada mode gratis, tidak ada
-            auto-refill diam-diam. Top up manual kapan saja di sini.
+            Balance empty? Playback stops or drops to a preview — no free tier, no silent
+            auto-refill. Top up manually anytime, right here.
           </p>
         </div>
       </Card>

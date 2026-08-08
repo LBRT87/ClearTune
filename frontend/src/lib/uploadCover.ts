@@ -7,7 +7,7 @@ import { supabase } from "./supabase";
 export async function uploadCover(file: File): Promise<string> {
   const path = `${Date.now()}-${file.name}`;
   const { error } = await supabase.storage.from("covers").upload(path, file);
-  if (error) throw new Error(`upload cover gagal: ${error.message}`);
+  if (error) throw new Error(`upload cover failed: ${error.message}`);
   const { data } = supabase.storage.from("covers").getPublicUrl(path);
   return data.publicUrl;
 }

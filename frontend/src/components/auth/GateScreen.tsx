@@ -1,53 +1,41 @@
 "use client";
 
-/* `/daftar` dan `/masuk` (tiket auth/05, bentuk dari prototipe 03).
-
-   Dua route terpisah walau mesinnya identik — Privy tidak mengenal beda
-   daftar vs masuk. Yang membedakan keduanya BUKAN judulnya:
-
-   - `/daftar` menjanjikan (apa yang akan kamu dapat), dan copy-nya tahu
-     asal kliknya: yang datang dari `?role=musisi` tidak disambut kalimat
-     yang sama dengan yang datang dari `?role=pendengar`.
-   - `/masuk` melaporkan (apa yang sudah menunggu), tidak menyebut peran
-     sama sekali, dan punya satu kalimat yang cuma masuk akal di layar
-     masuk: peringatan bahwa akun Google berbeda = dompet berbeda. */
-
 import { useLogin } from "@privy-io/react-auth";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-type Kind = "daftar" | "masuk";
+type Kind = "signup" | "login";
 
 const COPY = {
-  daftar: {
-    musisi: {
-      eyebrow: "DAFTAR · MUSISI",
+  signup: {
+    artist: {
+      eyebrow: "SIGN UP · ARTIST",
       h1: (
         <>
-          MULAI <em>DIBAYAR</em> PER PUTARAN.
+          START GETTING <em>PAID</em> PER PLAY.
         </>
       ),
-      lede: "Satu akun, dompetnya langsung jadi. Tiap kali lagumu diputar, bagianmu masuk ke sana — bukan 90 hari lagi.",
+      lede: "One account, your wallet is created instantly. Every time your song plays, your share lands there — not 90 days from now.",
     },
-    pendengar: {
-      eyebrow: "DAFTAR · PENDENGAR",
+    listener: {
+      eyebrow: "SIGN UP · LISTENER",
       h1: (
         <>
-          DENGAR. <em>LANGSUNG</em> SAMPAI.
+          LISTEN. IT <em>LANDS</em> INSTANTLY.
         </>
       ),
-      lede: "Buat akun, dapat dompet, dan tiap lagu yang kamu putar mengirim uang ke orang yang membuatnya. Angkanya bisa kamu lihat.",
+      lede: "Create an account, get a wallet, and every song you play sends money to whoever made it. You can see the numbers yourself.",
     },
   },
-  masuk: {
-    eyebrow: "MASUK",
-    h1: <>DOMPETMU MASIH DI SINI.</>,
-    lede: "Tidak ada yang perlu dibuat ulang. Masuk dengan cara yang sama seperti waktu itu.",
-    note: "Pakai akun Google yang sama seperti waktu daftar. Akun berbeda = dompet berbeda.",
+  login: {
+    eyebrow: "LOG IN",
+    h1: <>YOUR WALLET IS STILL HERE.</>,
+    lede: "Nothing to set up again. Log in the same way you did last time.",
+    note: "Use the same Google account you signed up with. A different account means a different wallet.",
   },
 };
 
-/* Ikon Google inline: satu <svg>, bukan request ke CDN. */
+/* Inline Google icon: one <svg>, no CDN request. */
 function GoogleMark() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
@@ -59,13 +47,10 @@ function GoogleMark() {
   );
 }
 
-export function GateScreen({ kind, role }: { kind: Kind; role: "musisi" | "pendengar" }) {
+export function GateScreen({ kind, role }: { kind: Kind; role: "artist" | "listener" }) {
   const [waiting, setWaiting] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /* Keadaan menunggu berhenti begitu Privy menjawab — berhasil maupun
-     gagal. Tanpa `onError`, orang yang menutup modal akan melihat tombol
-     tertahan selamanya dan mengira halamannya menggantung. */
   const { login } = useLogin({
     onComplete: () => setWaiting(false),
     onError: () => setWaiting(false),
@@ -75,13 +60,11 @@ export function GateScreen({ kind, role }: { kind: Kind; role: "musisi" | "pende
 
   function start() {
     setWaiting(true);
-    /* Jaring pengaman: kalau modal gagal muncul tanpa memicu callback apa
-       pun, tombol tidak boleh terkunci permanen. */
     timer.current = setTimeout(() => setWaiting(false), 12000);
     login();
   }
 
-  const c = kind === "daftar" ? COPY.daftar[role] : COPY.masuk;
+  const c = kind === "signup" ? COPY.signup[role] : COPY.login;
 
   return (
     <div className="auth-screen">
@@ -90,14 +73,11 @@ export function GateScreen({ kind, role }: { kind: Kind; role: "musisi" | "pende
           {c.eyebrow}
         </div>
         <h1 style={{ marginBottom: "var(--a3)" }}>{c.h1}</h1>
-        {/* satu-satunya 64 di layar ini */}
         <p className="lede" style={{ marginBottom: "var(--a5)" }}>
           {c.lede}
         </p>
 
         <div style={{ width: "100%", display: "grid", gap: "var(--a2)", justifyItems: "center" }}>
-          {/* Bayangan runtuh = "sedang dikerjakan". Bahasa yang sama dengan
-              tombol ditekan, jadi tidak ada benda baru yang harus dipelajari. */}
           <button
             className={`btn btn-purple${waiting ? " waiting" : ""}`}
             onClick={start}
@@ -105,11 +85,11 @@ export function GateScreen({ kind, role }: { kind: Kind; role: "musisi" | "pende
           >
             {waiting ? (
               <>
-                MEMBUKA GOOGLE<span className="dots" />
+                OPENING GOOGLE<span className="dots" />
               </>
             ) : (
               <>
-                <GoogleMark /> LANJUT DENGAN GOOGLE
+                <GoogleMark /> CONTINUE WITH GOOGLE
               </>
             )}
           </button>
@@ -117,35 +97,33 @@ export function GateScreen({ kind, role }: { kind: Kind; role: "musisi" | "pende
           <div style={{ minHeight: 26 }}>
             {waiting && (
               <p className="small" style={{ color: "var(--dimmer)" }}>
-                Jendela Google sedang dibuka. Jangan tutup halaman ini.
+                The Google window is opening. Don&apos;t close this page.
               </p>
             )}
           </div>
 
-          {/* Email OTP ada di modal yang sama — jaring pengaman untuk
-              in-app browser, tempat Google OAuth bisa mati total. */}
           <button className="tlink" onClick={start} disabled={waiting}>
-            atau pakai kode yang dikirim ke email
+            or use a code sent to your email
           </button>
         </div>
 
-        {kind === "masuk" && (
+        {kind === "login" && (
           <p
             className="small"
             style={{ maxWidth: "38ch", marginTop: "var(--a3)", color: "var(--dimmer)" }}
           >
-            {COPY.masuk.note}
+            {COPY.login.note}
           </p>
         )}
 
         <div style={{ marginTop: "var(--a4)" }}>
-          {kind === "daftar" ? (
-            <Link className="tlink" href="/masuk">
-              Sudah punya akun? <b>MASUK</b>
+          {kind === "signup" ? (
+            <Link className="tlink" href="/login">
+              Already have an account? <b>LOG IN</b>
             </Link>
           ) : (
-            <Link className="tlink" href="/daftar">
-              Belum punya akun? <b>DAFTAR</b>
+            <Link className="tlink" href="/signup">
+              Don&apos;t have an account? <b>SIGN UP</b>
             </Link>
           )}
         </div>

@@ -1,5 +1,5 @@
 import { PixelPageLoader } from "@/components/ui/PixelLoader";
 
 export default function Loading() {
-  return <PixelPageLoader label="MEMUAT PROFIL MUSISI" />;
+  return <PixelPageLoader label="LOADING ARTIST PROFILE" />;
 }

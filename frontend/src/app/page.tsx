@@ -14,13 +14,13 @@ import { PLATFORM_FEE_BPS, RATE_PER_PLAY, SETTLEMENT, fmt } from "@/lib/settleme
 
 const TL_SLOTS = 48;
 
-function Timeline({ variant }: { variant: "lama" | "baru" }) {
+function Timeline({ variant }: { variant: "old" | "new" }) {
   return (
     <div className="tl">
       {Array.from({ length: TL_SLOTS }, (_, i) => (
         <i
           key={i}
-          className={variant === "baru" || i === TL_SLOTS - 1 ? "on" : undefined}
+          className={variant === "new" || i === TL_SLOTS - 1 ? "on" : undefined}
         />
       ))}
     </div>
@@ -37,8 +37,8 @@ export default function Home() {
           <span className="brand">
             CLEARTUNE<i>.</i>
           </span>
-          <a className="btn btn-purple" href="/masuk">
-            BUKA APP
+          <a className="btn btn-purple" href="/login">
+            OPEN APP
           </a>
         </div>
       </nav>
@@ -46,27 +46,27 @@ export default function Home() {
       <main>
         <div className="shell hero">
           <div className="eyebrow" style={{ marginBottom: "var(--s3)" }}>
-            ROYALTI MUSIK ON-CHAIN &middot; MONAD
+            ON-CHAIN MUSIC ROYALTIES &middot; MONAD
           </div>
           <h1>
-            BUKAN 6 BULAN SEKALI.
+            NOT ONCE EVERY 6 MONTHS.
             <br />
-            <em>TIAP PLAY.</em>
+            <em>EVERY PLAY.</em>
           </h1>
           <p className="lede">
-            Sekali lagu diputar, uangnya terbagi ke semua pemilik hak saat itu juga.
-            Bukan direkap, bukan dijanjikan.
+            The moment a song plays, the money splits to every rights holder right then —
+            not batched, not promised.
           </p>
           <div className="cta">
-            {/* Tiga CTA memetakan berbeda (keputusan map auth). `?role=`
-                memilihkan copy di /daftar dan kartu di layar pilih peran —
-                tidak mengunci apa pun. Orang yang sudah punya sesi tidak
-                tertahan: /daftar melemparnya langsung ke tujuannya. */}
-            <a className="btn" href="/daftar?role=pendengar">
-              DENGAR SEKARANG
+            {/* Two CTAs map differently (auth map decision). `?role=` picks the
+                copy on /signup and the card on the role picker screen — it
+                doesn't lock anything in. Someone who already has a session
+                isn't held up: /signup drops them straight at their destination. */}
+            <a className="btn" href="/signup?role=listener">
+              LISTEN NOW
             </a>
-            <a className="btn btn-ghost" href="/daftar?role=musisi">
-              SAYA MUSISI
+            <a className="btn btn-ghost" href="/signup?role=artist">
+              I'M AN ARTIST
             </a>
           </div>
 
@@ -75,22 +75,22 @@ export default function Home() {
 
         <Marquee />
 
-        <section className="act shell" id="masalah" aria-labelledby="h-masalah">
+        <section className="act shell" id="problem" aria-labelledby="h-problem">
           <div className="eyebrow" style={{ marginBottom: "var(--s3)" }}>
-            MASALAHNYA
+            THE PROBLEM
           </div>
 
           <div className="split">
-            <h2 className="act-head" id="h-masalah">
-              DIBAYAR TERAKHIR.
+            <h2 className="act-head" id="h-problem">
+              PAID LAST.
               <br />
-              SELALU.
+              ALWAYS.
             </h2>
             <p className="lede">
-              Royalti direkap tiap enam bulan. Selama itu lagunya bekerja, tapi uangnya
-              diam di tangan orang lain. Rinciannya tidak dibuka, potongannya tidak
-              dijelaskan, dan sampai uangnya cair tidak ada satu pun cara memastikan
-              hitungannya benar.
+              Royalties are batched every six months. The whole time, the song is working,
+              but the money sits in someone else's hands. The breakdown isn't disclosed, the
+              cuts aren't explained, and until it's paid out there's no way to verify the
+              math is right.
             </p>
           </div>
 
@@ -98,67 +98,67 @@ export default function Home() {
             <div className="cmp bad">
               <div className="cmp-hd">
                 <PixelIcon name="lock" />
-                <span className="lbl">CARA LAMA</span>
+                <span className="lbl">THE OLD WAY</span>
               </div>
-              <Timeline variant="lama" />
+              <Timeline variant="old" />
               <div className="tl-cap">
-                <span className="k">Selama 6 bulan, tidak ada apa-apa.</span>
+                <span className="k">Six months, nothing happens.</span>
                 <span className="v">1&times;</span>
               </div>
-              <div className="li">Rekap 6 bulan sekali</div>
-              <div className="li">Rincian tertutup</div>
-              <div className="li">Potongan tidak dijelaskan</div>
-              <div className="li">Split sheet cuma di email</div>
+              <div className="li">Batched every 6 months</div>
+              <div className="li">Breakdown hidden</div>
+              <div className="li">Cuts unexplained</div>
+              <div className="li">Split sheet lives in email</div>
             </div>
 
             <div className="cmp good">
               <div className="cmp-hd">
                 <PixelIcon name="split" />
-                <span className="lbl">DI SINI</span>
+                <span className="lbl">HERE</span>
               </div>
-              <Timeline variant="baru" />
+              <Timeline variant="new" />
               <div className="tl-cap">
-                <span className="k">Tiap play, langsung terbagi.</span>
+                <span className="k">Every play, split instantly.</span>
                 <span className="v">48&times;</span>
               </div>
-              <div className="li">Terbagi tiap play</div>
-              <div className="li">Tiap play punya tx hash</div>
-              <div className="li">Fee 8%, tertulis di kontrak</div>
-              <div className="li">Split permanen on-chain</div>
+              <div className="li">Split on every play</div>
+              <div className="li">Every play has a tx hash</div>
+              <div className="li">8% fee, written in the contract</div>
+              <div className="li">Split permanent on-chain</div>
             </div>
           </div>
         </section>
 
-        <section className="act shell" id="cara-kerja" aria-labelledby="h-produk">
+        <section className="act shell" id="how-it-works" aria-labelledby="h-product">
           <div className="eyebrow" style={{ marginBottom: "var(--s3)" }}>
-            CARA KERJANYA
+            HOW IT WORKS
           </div>
           <div className="split">
-            <h2 className="act-head" id="h-produk">
-              TIGA SISI.
+            <h2 className="act-head" id="h-product">
+              THREE SIDES.
               <br />
-              SATU ALIRAN.
+              ONE FLOW.
             </h2>
             <p className="lede">
-              Pendengar top-up saldo. Musisi dibayar tiap play. Trust layer menjaga
-              chart-nya tetap jujur.
+              Listeners top up a balance. Artists get paid every play. The trust layer keeps
+              the chart honest.
             </p>
           </div>
 
           <div className="pblock">
             <div className="pb-text">
               <div className="eyebrow">
-                <i>01</i> SISI PENDENGAR
+                <i>01</i> LISTENER SIDE
               </div>
               <h3 className="pb-title">
-                ISI SALDO.
+                TOP UP.
                 <br />
-                <em>DENGAR TERUS.</em>
+                <em>KEEP LISTENING.</em>
               </h3>
               <p className="lede">
-                Top-up saldo di muka, mirip token listrik. Tiap play memotong saldo
-                dengan nominal tetap dan langsung terbagi ke musisi. Saldo habis, dengarnya
-                berhenti sampai top-up lagi — tidak ada mode gratis.
+                Top up a balance up front, like phone credit. Every play deducts a fixed
+                amount and splits it to artists instantly. Balance runs out, listening stops
+                until you top up again — no free tier.
               </p>
             </div>
             <div className="pb-visual">
@@ -169,17 +169,17 @@ export default function Home() {
           <div className="pblock flip">
             <div className="pb-text">
               <div className="eyebrow">
-                <i>02</i> SISI MUSISI
+                <i>02</i> ARTIST SIDE
               </div>
               <h3 className="pb-title">
-                UANGNYA SUDAH
+                THE MONEY'S
                 <br />
-                <em>DI SANA.</em>
+                <em>ALREADY THERE.</em>
               </h3>
               <p className="lede">
-                Saldo bertambah tiap play, bukan tiap kuartal. Tarik kapan saja, tanpa
-                minimum, tanpa jadwal. Split sheet ditulis sekali saat registrasi dan
-                tidak bisa diubah setelahnya.
+                Your balance grows on every play, not every quarter. Withdraw anytime, no
+                minimum, no schedule. The split sheet is written once at registration and
+                can never be changed after.
               </p>
             </div>
             <div className="pb-visual">
@@ -193,14 +193,14 @@ export default function Home() {
                 <i>03</i> TRUST LAYER
               </div>
               <h3 className="pb-title">
-                PLAY PALSU
+                FAKE PLAYS
                 <br />
-                <em>TIDAK IKUT NAIK.</em>
+                <em>DON'T CLIMB.</em>
               </h3>
               <p className="lede">
-                Chart dihitung dari play berbobot trust score, bukan play mentah. Dompet
-                yang memutar satu lagu terus-menerus tetap dibayar, tapi bobotnya turun.
-                Pembayaran dan peringkat jalan di jalur terpisah.
+                The chart is computed from trust-weighted plays, not raw counts. A wallet
+                replaying one song over and over still gets paid, but its weight drops.
+                Payment and ranking run on separate rails.
               </p>
             </div>
             <div className="pb-visual">
@@ -209,56 +209,55 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="act shell" id="bukti" aria-labelledby="h-bukti">
+        <section className="act shell" id="proof" aria-labelledby="h-proof">
           <div className="eyebrow" style={{ marginBottom: "var(--s3)" }}>
-            BUKTINYA
+            THE PROOF
           </div>
           <div className="split">
-            <h2 className="act-head" id="h-bukti">
-              SATU PLAY.
+            <h2 className="act-head" id="h-proof">
+              ONE PLAY.
               <br />
-              SATU STRUK.
+              ONE RECEIPT.
             </h2>
             <p className="lede">
-              Tiap play menulis satu transaksi: siapa yang membayar, siapa yang menerima,
-              berapa bagian masing-masing. Tidak ada baris yang disembunyikan sampai akhir
-              kuartal.
+              Every play writes one transaction: who paid, who received, how much each
+              share was. Nothing hidden until the end of the quarter.
             </p>
           </div>
 
           <div className="close">
             <div className="close-hd">
-              <span className="t">STRUK SETTLEMENT</span>
-              <span className="b">contoh satu play</span>
+              <span className="t">SETTLEMENT RECEIPT</span>
+              <span className="b">sample single play</span>
             </div>
 
             <div className="close-body">
               <div className="rc">
                 <span className="k">Tx</span>
-                <span className="data pending">menunggu play pertama di produksi</span>
+                <span className="data pending">waiting for the first play in production</span>
               </div>
               <div className="rc">
-                <span className="k">Jaringan</span>
+                <span className="k">Network</span>
                 <span className="data">Monad Testnet</span>
               </div>
               <div className="rc">
-                <span className="k">Didanai</span>
-                <span className="data">saldo pendengar</span>
+                <span className="k">Funded by</span>
+                <span className="data">listener balance</span>
               </div>
 
               <div className="ledger">
-                <div className="eyebrow">MASUK</div>
+                <div className="eyebrow">IN</div>
                 <div className="row">
-                  <span className="k">Tarif per play</span>
+                  <span className="k">Rate per play</span>
                   <span className="v">{fmt(RATE_PER_PLAY)} mUSD</span>
                 </div>
               </div>
 
               <div className="ledger">
-                <div className="eyebrow">KELUAR</div>
+                <div className="eyebrow">OUT</div>
                 <div className="row">
                   <span className="k">
-                    Fee platform <span className="bps">{PLATFORM_FEE_BPS} bps</span>
+                    Platform fee <span className="bps">{PLATFORM_FEE_BPS} bps</span>
                   </span>
                   <span className="v acc">{fmt(fee)}</span>
                 </div>
@@ -273,12 +272,12 @@ export default function Home() {
               </div>
 
               <div className="total">
-                <span className="k">TERBAGI</span>
+                <span className="k">SPLIT</span>
                 <span className="v">{fmt(RATE_PER_PLAY)}</span>
               </div>
 
               <div className="check">
-                <div className="eyebrow">HITUNG ULANG</div>
+                <div className="eyebrow">CHECK THE MATH</div>
                 <div className="check-line">
                   {RATE_PER_PLAY} &minus; {fee} = {net}
                 </div>
@@ -288,18 +287,18 @@ export default function Home() {
               </div>
 
               <p className="honesty">
-                Angka di halaman ini dihitung dari parameter kontrak yang sama dengan yang
-                live di Monad testnet, bukan angka karangan.
+                The numbers on this page are computed from the same contract parameters
+                live on Monad testnet — not made up.
               </p>
             </div>
           </div>
 
           <div className="close-cta">
-            <a className="btn btn-purple" href="/daftar?role=pendengar">
-              DENGAR SEKARANG
+            <a className="btn btn-purple" href="/signup?role=listener">
+              LISTEN NOW
             </a>
-            <a className="btn btn-ghost" href="/daftar?role=musisi">
-              DAFTARKAN LAGU
+            <a className="btn btn-ghost" href="/signup?role=artist">
+              REGISTER A SONG
             </a>
           </div>
         </section>

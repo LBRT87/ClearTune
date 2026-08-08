@@ -36,7 +36,7 @@ export function PlaylistDetail({ playlist, songs }: { playlist: Playlist; songs:
       <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
         <div>
           <span className="text-dim font-display text-[10px] block mb-3">
-            PLAYLIST OLEH{" "}
+            PLAYLIST BY{" "}
             <Link href={`/u/${playlist.owner_wallet}`} className="text-purple hover:underline">
               {short(playlist.owner_wallet)}
             </Link>
@@ -45,23 +45,23 @@ export function PlaylistDetail({ playlist, songs }: { playlist: Playlist; songs:
         </div>
         {isOwner && (
           <Button variant="danger" onClick={deletePlaylist}>
-            HAPUS PLAYLIST
+            DELETE PLAYLIST
           </Button>
         )}
       </div>
 
-      {songs.length === 0 && <p className="text-dim text-lg">Belum ada lagu di playlist ini.</p>}
+      {songs.length === 0 && <p className="text-dim text-lg">No songs in this playlist yet.</p>}
       <div className="grid md:grid-cols-3 gap-6">
         {songs.map((song) => (
-          <Card key={song.song_id_onchain} eyebrow={`LAGU #${song.song_id_onchain}`} title={song.title.toUpperCase()}>
-            <StatRow label="Artis" value={song.artist} />
+          <Card key={song.song_id_onchain} eyebrow={`SONG #${song.song_id_onchain}`} title={song.title.toUpperCase()}>
+            <StatRow label="Artist" value={song.artist} />
             <div className="flex gap-3 mt-4">
               <Link href={`/song/${song.song_id_onchain}`}>
-                <Button variant="outline">PUTAR</Button>
+                <Button variant="outline">PLAY</Button>
               </Link>
               {isOwner && (
                 <Button variant="danger" onClick={() => removeSong(song.song_id_onchain)}>
-                  HAPUS
+                  REMOVE
                 </Button>
               )}
             </div>

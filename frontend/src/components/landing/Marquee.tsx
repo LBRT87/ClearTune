@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from "react";
 const ITEMS = [
   "MONAD TESTNET",
   "SETTLE PER PLAY",
-  "92% KE MUSISI",
-  "TRUST LAYER AKTIF",
-  "TARIK KAPAN SAJA",
+  "92% TO ARTISTS",
+  "TRUST LAYER ACTIVE",
+  "WITHDRAW ANYTIME",
 ];
 
 const MAX_REPS = 24;

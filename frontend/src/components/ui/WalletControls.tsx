@@ -54,11 +54,11 @@ export function ConnectWalletButton({ compact = false }: { compact?: boolean }) 
         <button
           onClick={openConnectModal}
           type="button"
-          aria-label="Masuk"
+          aria-label="Log in"
           className={`btn btn-warn flex items-center justify-center gap-3 ${compact ? "!p-3 !shadow-none" : "w-full"}`}
         >
           <PixelIcon name="coin" size={16} />
-          {!compact && <span>MASUK</span>}
+          {!compact && <span>LOG IN</span>}
         </button>
       ) : wrongNetwork ? (
         /* Privy tidak punya "chain modal" seperti RainbowKit. Untuk embedded
@@ -66,17 +66,17 @@ export function ConnectWalletButton({ compact = false }: { compact?: boolean }) 
            tentukan — jadi yang ditampilkan cukup peringatan jujur. */
         <button
           type="button"
-          aria-label="Jaringan salah"
+          aria-label="Wrong network"
           className={`btn btn-danger flex items-center justify-center gap-3 ${compact ? "!p-3 !shadow-none" : "w-full"}`}
         >
           <PixelIcon name="coin" size={16} />
-          {!compact && <span>JARINGAN SALAH</span>}
+          {!compact && <span>WRONG NETWORK</span>}
         </button>
       ) : compact ? (
         <button
           onClick={() => logout()}
           type="button"
-          aria-label={address ? short(address) : "Akun"}
+          aria-label={address ? short(address) : "Account"}
           className="btn btn-warn !p-3 !shadow-none flex items-center justify-center gap-3"
         >
           <PixelIcon name="coin" size={16} />
@@ -90,7 +90,7 @@ export function ConnectWalletButton({ compact = false }: { compact?: boolean }) 
             className="btn btn-warn flex items-center justify-center gap-3 whitespace-nowrap"
           >
             <PixelIcon name="coin" size={16} />
-            <span>{address ? short(address) : "AKUN"}</span>
+            <span>{address ? short(address) : "ACCOUNT"}</span>
           </button>
         </div>
       )}

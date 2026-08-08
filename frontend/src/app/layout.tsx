@@ -17,7 +17,7 @@ const vt323 = VT323({
 export const metadata: Metadata = {
   title: "ClearTune — Transparent Streaming for True Fans & Artists",
   description:
-    "Royalti musik yang jelas ke mana perginya: dibagi per play, real-time, on-chain.",
+    "Music royalties that are clear about where they go: split per play, in real time, on-chain.",
 };
 
 export default function RootLayout({

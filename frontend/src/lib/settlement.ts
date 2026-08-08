@@ -22,7 +22,7 @@ export const TOTAL_BPS = PAYEES.reduce((s, p) => s + p.bps, 0);
    diterima kontrak: kalau ada yang mengubah PAYEES dan lupa menyeimbangkan,
    halaman gagal di-build, bukan tampil dengan angka yang salah. */
 if (TOTAL_BPS !== 10000) {
-  throw new Error(`Total bps split sheet harus 10000, dapat ${TOTAL_BPS}`);
+  throw new Error(`Split sheet total bps must be 10000, got ${TOTAL_BPS}`);
 }
 
 /** Pembagian satu play. Dust dilempar ke payee terakhir (spec §6). */
@@ -43,5 +43,5 @@ export function settle(rate: number) {
 
 export const SETTLEMENT = settle(RATE_PER_PLAY);
 
-/** 1000 -> "0,001000" — koma desimal Indonesia, 6 desimal. */
-export const fmt = (n: number) => (n / 1e6).toFixed(6).replace(".", ",");
+/** 1000 -> "0.001000" — 6 decimal places. */
+export const fmt = (n: number) => (n / 1e6).toFixed(6);

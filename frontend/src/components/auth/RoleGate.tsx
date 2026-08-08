@@ -42,9 +42,9 @@ function RoleGateActive() {
   const router = useRouter();
 
   useEffect(() => {
-    /* `/pilih-peran` ada di luar `(app)`, jadi penjaga ini tidak ikut
+    /* `/choose-role` ada di luar `(app)`, jadi penjaga ini tidak ikut
        ter-mount di sana dan tidak bisa memantul bolak-balik. */
-    if (status === "needs-role") router.replace("/pilih-peran");
+    if (status === "needs-role") router.replace("/choose-role");
   }, [status, router]);
 
   return null;

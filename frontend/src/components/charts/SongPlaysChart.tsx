@@ -6,7 +6,7 @@ export type SongPlayDatum = { title: string; plays: number };
 
 export function SongPlaysChart({ data }: { data: SongPlayDatum[] }) {
   if (data.length === 0) {
-    return <p className="text-dim text-lg py-8">Belum ada lagu dengan data play.</p>;
+    return <p className="text-dim text-lg py-8">No songs with play data yet.</p>;
   }
 
   return (

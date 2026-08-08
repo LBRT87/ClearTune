@@ -5,7 +5,7 @@ import type { PlaysByDay } from "@/lib/listenerProfile";
 
 export function ListeningTrendChart({ data }: { data: PlaysByDay[] }) {
   if (data.length === 0) {
-    return <p className="text-dim text-lg py-8">Belum ada riwayat dengar untuk digrafikkan.</p>;
+    return <p className="text-dim text-lg py-8">No listening history to chart yet.</p>;
   }
 
   return (

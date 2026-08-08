@@ -55,27 +55,27 @@ export function PlaylistManager() {
   }
 
   if (!isConnected) {
-    return <StatusLine variant="info" label="HUBUNGKAN DOMPET" detail="Sambungkan dompet untuk melihat playlist kamu." />;
+    return <StatusLine variant="info" label="CONNECT WALLET" detail="Connect a wallet to see your playlists." />;
   }
 
   return (
     <div>
-      <Card eyebrow="BUAT PLAYLIST BARU" className="mb-10 max-w-[480px]">
+      <Card eyebrow="CREATE NEW PLAYLIST" className="mb-10 max-w-[480px]">
         <form onSubmit={createPlaylist} className="flex flex-col gap-3">
           <div className="flex gap-3 flex-wrap">
             <input
               type="text"
-              placeholder="Nama playlist"
+              placeholder="Playlist name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="bg-void border-[3px] border-ink text-ink font-mono text-lg px-3 py-2 flex-1 min-w-[180px]"
             />
             <Button type="submit" variant="purple" disabled={creating || !name.trim()}>
-              {creating ? "MEMBUAT..." : "BUAT"}
+              {creating ? "CREATING..." : "CREATE"}
             </Button>
           </div>
           <div className="field mb-0">
-            <label>COVER (OPSIONAL)</label>
+            <label>COVER (OPTIONAL)</label>
             <input
               type="file"
               accept="image/*"
@@ -86,7 +86,7 @@ export function PlaylistManager() {
         </form>
       </Card>
 
-      {playlists.length === 0 && <p className="text-dim text-lg">Belum ada playlist. Buat satu di atas.</p>}
+      {playlists.length === 0 && <p className="text-dim text-lg">No playlists yet. Create one above.</p>}
       <div className="grid md:grid-cols-3 gap-6">
         {playlists.map((p) => (
           <Link key={p.id} href={`/playlist/${p.id}`} className="media-card">
@@ -98,7 +98,7 @@ export function PlaylistManager() {
             </div>
             <div className="media-title">{p.name.toUpperCase()}</div>
             <div className="media-sub line-clamp-2">
-              {formatArtistList(playlistArtists[p.id] ?? []) ?? new Date(p.created_at).toLocaleDateString("id-ID")}
+              {formatArtistList(playlistArtists[p.id] ?? []) ?? new Date(p.created_at).toLocaleDateString("en-US")}
             </div>
           </Link>
         ))}

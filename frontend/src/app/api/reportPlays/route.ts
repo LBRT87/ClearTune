@@ -3,6 +3,7 @@ import { decodeEventLog } from "viem";
 import { CLEARTUNE_ADDRESS, clearTuneAbi } from "@/lib/contracts";
 import { getBackendWalletClient, getPublicClient } from "@/lib/serverWallet";
 import { supabaseAdmin } from "@/lib/supabase";
+import { recomputeWalletTrust } from "@/lib/trust/compute";
 
 // Called from the player UI when a track finishes (or is skipped). Writes the
 // play on-chain via the authorized backend signer, then write-throughs the
@@ -57,6 +58,17 @@ export async function POST(req: NextRequest) {
     status,
     tx_hash: txHash,
   });
+
+  // Keeps wallet_stats.trust_score current so the trending chart's weighting
+  // actually reflects recent behavior. Never blocks the response — trust
+  // scoring failing shouldn't fail a payment that already settled on-chain.
+  if (status === "paid") {
+    try {
+      await recomputeWalletTrust(db, listener);
+    } catch {
+      // best-effort; chart_cache will just use a stale/neutral score this round
+    }
+  }
 
   return NextResponse.json({ txHash, status });
 }

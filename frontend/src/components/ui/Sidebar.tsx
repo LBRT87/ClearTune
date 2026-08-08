@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAccount, useReadContract } from "wagmi";
+import { usePrivy } from "@privy-io/react-auth";
 import { PixelIcon, type PixelIconName } from "./PixelIcon";
 import { ConnectWalletButton } from "./WalletControls";
 import { useAuthState } from "@/components/auth/useAuthState";
@@ -56,6 +57,28 @@ function NavLink({
 function ArtistNavGate({ children }: { children: (isArtist: boolean) => React.ReactNode }) {
   const { profile } = useAuthState();
   return <>{children(profile?.role === "artist")}</>;
+}
+
+// Explicit, clearly-labeled logout — the wallet button alone (icon + address)
+// wasn't obviously "click this to log out". Same Privy-configured gating as
+// ArtistNavGate, for the same reason (usePrivy() throws without a provider).
+function LogoutButton() {
+  const { authenticated, logout } = usePrivy();
+  const router = useRouter();
+  if (!authenticated) return null;
+
+  async function handleLogout() {
+    await logout();
+    router.push("/");
+  }
+
+  return (
+    <div className="px-3 py-4 border-t-[3px] border-ink shrink-0">
+      <button type="button" onClick={handleLogout} className="btn btn-outline w-full !shadow-none">
+        LOGOUT
+      </button>
+    </div>
+  );
 }
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -113,9 +136,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         )}
       </nav>
 
-      <div className="px-3 py-4 border-t-[3px] border-ink shrink-0 flex justify-center">
-        <ConnectWalletButton compact />
-      </div>
+      {isPrivyConfigured && <LogoutButton />}
     </div>
   );
 }

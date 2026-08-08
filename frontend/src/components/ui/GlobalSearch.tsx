@@ -71,7 +71,7 @@ export function GlobalSearch({
         <PixelIcon name="search" size={size === "lg" ? 18 : 13} className="text-dim shrink-0" />
         <input
           type="text"
-          placeholder="Cari judul lagu atau nama artis..."
+          placeholder="Search by song title or artist name..."
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -91,7 +91,7 @@ export function GlobalSearch({
       {open && query.trim().length >= 2 && (
         <div className="search-results">
           {results.length === 0 ? (
-            <div className="search-result-row search-result-empty">Tidak ada hasil untuk &ldquo;{query}&rdquo;</div>
+            <div className="search-result-row search-result-empty">No results for &ldquo;{query}&rdquo;</div>
           ) : (
             results.map((r) => (
               <button key={r.id} type="button" onClick={() => goTo(r.id)} className="search-result-row">
