@@ -1,0 +1,22 @@
+# --- Foundry ---
+cache/
+out/
+broadcast/*/31337/
+broadcast/*/31337-fork/
+
+# --- Node / Next.js (for when frontend lands) ---
+node_modules/
+.next/
+out-next/
+dist/
+
+# --- Env / secrets ---
+.env
+.env.*
+!.env.example
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
