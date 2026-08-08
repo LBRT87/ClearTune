@@ -1,0 +1,431 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ══════════════════════════════════════════════════════════════
+   ClearTune — design tokens
+   Palet + typeface : component-reference.html (pixel system)
+   Ritme spasi      : sangu-xi.vercel.app
+   Aturan restraint : .scratch/landing-page/issues/03-design-tokens.md
+   ══════════════════════════════════════════════════════════════ */
+:root {
+  --void: #000000;
+  --surface: #0a0a0a;
+  --surface-2: #141414;
+  --ink: #ffffff;
+  --dim: #9a9a9a;
+  --dimmer: #5a5a5a;
+  --purple: #8b5cf6;
+  --purple-dark: #241033;
+  --green: #4ade80;
+  --red: #ff5c5c;
+  --yellow: #ffe14d;
+
+  --px: var(--font-px), monospace;
+  --tx: var(--font-tx), monospace;
+
+  /* Minimum diturunkan dari 24/19 ke 20/17 untuk 360px: Press Start 2P
+     advance-nya 1em, jadi "BUKAN 6 BULAN SEKALI." di 24px butuh 504px —
+     dua kali lebar layar terkecil yang didukung. */
+  --t-display: clamp(20px, 3.9vw, 42px);
+  --t-h2: clamp(17px, 2.3vw, 26px);
+  --t-h3: 15px;
+  --t-label: 11px;
+  --t-eyebrow: 10px;
+  --t-body: 22px;
+  --t-small: 18px;
+  --t-data: 20px;
+
+  --lh-display: 1.42;
+  --lh-h2: 1.45;
+  --lh-label: 1.6;
+  --lh-body: 1.55;
+
+  --s1: 8px; --s2: 16px; --s3: 24px;
+  --s4: 40px; --s5: 64px; --s6: 96px; --s7: 144px;
+
+  --measure: 46ch;
+  --shell: 1180px;
+  --line: 3px solid var(--ink);
+  --hair: 1px dashed #2e2e2e;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--tx);
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: none;
+  overflow-x: hidden;
+  /* Jangkar untuk `.cursor-layer` (tiket 06): lapisan cursor absolute-nya
+     harus setinggi dokumen, bukan setinggi viewport. */
+  position: relative;
+}
+
+.shell { max-width: var(--shell); margin: 0 auto; padding-inline: var(--s3); }
+
+.eyebrow {
+  font-family: var(--px);
+  font-size: var(--t-eyebrow);
+  line-height: var(--lh-label);
+  letter-spacing: 0.16em;
+  color: var(--dim);
+}
+.eyebrow i { color: var(--purple); font-style: normal; margin-right: 6px; }
+h1 { font-family: var(--px); font-size: var(--t-display); line-height: var(--lh-display); font-weight: 400; }
+h2 { font-family: var(--px); font-size: var(--t-h2); line-height: var(--lh-h2); font-weight: 400; }
+h3 { font-family: var(--px); font-size: var(--t-h3); line-height: var(--lh-label); font-weight: 400; }
+
+.lede { font-size: var(--t-body); color: var(--dim); max-width: var(--measure); }
+.small { font-size: var(--t-small); color: var(--dim); }
+.data { font-size: var(--t-data); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+
+/* ── tombol: hard shadow HANYA di sini (aturan restraint 03) ── */
+.btn {
+  display: inline-block;
+  font-family: var(--px);
+  font-size: var(--t-label);
+  border: var(--line);
+  padding: 16px 22px;
+  cursor: pointer;
+  text-decoration: none;
+  background: var(--ink);
+  color: var(--void);
+  box-shadow: 5px 5px 0 var(--dimmer);
+  transition: transform 0.06s steps(2), box-shadow 0.06s steps(2);
+}
+.btn:hover { background: var(--void); color: var(--ink); }
+.btn:active { transform: translate(5px, 5px); box-shadow: none; }
+.btn:focus-visible { outline: 4px solid var(--ink); outline-offset: 3px; }
+.btn-purple {
+  background: var(--purple); color: var(--void);
+  border-color: var(--purple); box-shadow: 5px 5px 0 var(--purple-dark);
+}
+.btn-purple:hover { background: var(--purple-dark); color: var(--purple); }
+.btn-ghost { background: transparent; color: var(--ink); box-shadow: none; border-color: #333; }
+.btn-ghost:hover { background: var(--ink); color: var(--void); border-color: var(--ink); }
+/* Tombol tiruan di dalam ilustrasi produk: tidak bisa diklik, jadi tidak boleh
+   punya hard shadow (aturan restraint 03). */
+.btn.mock { box-shadow: none; cursor: default; }
+.btn.mock:hover { background: var(--ink); color: var(--void); }
+
+/* ── nav ── */
+.nav { position: fixed; inset: var(--s3) 0 auto 0; z-index: 50; display: flex; justify-content: center; pointer-events: none; }
+.nav-box {
+  pointer-events: auto; display: flex; align-items: center; gap: var(--s5);
+  background: var(--void); border: var(--line); padding: 12px 12px 12px 22px;
+  box-shadow: 6px 6px 0 var(--purple-dark);
+}
+.brand { font-family: var(--px); font-size: 12px; letter-spacing: 0.02em; }
+.brand i { color: var(--purple); font-style: normal; }
+.nav-box .btn { padding: 11px 15px; font-size: 10px; box-shadow: none; }
+
+/* ── hero ── */
+.hero { padding-top: calc(var(--s7) + var(--s5)); padding-bottom: var(--s6); text-align: center; position: relative; }
+.hero h1 { margin-inline: auto; max-width: 24ch; margin-bottom: var(--s4); }
+.hero h1 em { color: var(--purple); font-style: normal; }
+.hero .lede { margin-inline: auto; margin-bottom: var(--s4); }
+.cta { display: flex; gap: var(--s2); justify-content: center; flex-wrap: wrap; }
+
+/* ── widget bukti ── */
+.proof { margin-top: var(--s6); display: grid; grid-template-columns: 1fr 1fr; border: var(--line); background: var(--surface); text-align: left; }
+.proof-l { padding: var(--s4); border-right: var(--line); }
+.proof-r { padding: var(--s4); }
+.proof .eyebrow { margin-bottom: var(--s3); display: flex; align-items: center; gap: 10px; }
+@media (max-width: 860px) {
+  .proof { grid-template-columns: 1fr; }
+  .proof-l { border-right: none; border-bottom: var(--line); }
+}
+
+.pulse { width: 9px; height: 9px; background: var(--green); flex-shrink: 0; animation: blink 1.1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0.15; } }
+
+.track-title { font-family: var(--px); font-size: 15px; line-height: 1.5; margin-bottom: 10px; }
+.track-artist { font-size: var(--t-small); color: var(--dim); margin-bottom: var(--s3); }
+
+.bar { display: flex; gap: 3px; margin-bottom: 10px; }
+.bar i { flex: 1; height: 14px; background: #232323; display: block; }
+.bar i.on { background: var(--purple); }
+
+/* Posisi audio sungguhan (tiket 07). `tabular-nums` wajib di sini: angkanya
+   berubah 10x per detik, dan lebar glyph yang goyang membuat seluruh baris
+   terlihat bergetar. */
+.timerow {
+  display: flex; justify-content: space-between; gap: var(--s2);
+  font-size: var(--t-small); color: var(--dimmer);
+  font-variant-numeric: tabular-nums;
+}
+
+.playrow { display: flex; align-items: center; gap: var(--s2); margin-top: var(--s3); }
+.playbtn {
+  width: 56px; height: 56px; flex-shrink: 0; background: var(--purple);
+  border: 3px solid var(--purple); color: #000; cursor: pointer;
+  box-shadow: 5px 5px 0 var(--purple-dark); display: grid; place-items: center;
+  font-size: 16px; transition: transform 0.06s steps(2), box-shadow 0.06s steps(2);
+}
+.playbtn:hover { background: var(--purple-dark); color: var(--purple); }
+.playbtn:active { transform: translate(5px, 5px); box-shadow: none; }
+.playbtn:focus-visible { outline: 4px solid var(--ink); outline-offset: 3px; }
+/* Tanpa file audio tombolnya tidak bisa ditekan — dan karena tidak bisa
+   ditekan, hard shadow-nya ikut hilang (aturan restraint 03). */
+.playbtn:disabled {
+  background: transparent; border-color: #333; color: var(--dimmer);
+  box-shadow: none; cursor: not-allowed;
+}
+
+.receipt { margin-top: var(--s5); padding-top: var(--s3); border-top: var(--hair); }
+.rc { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s2); padding: 7px 0; }
+.rc .k { color: var(--dim); font-size: var(--t-small); }
+.rc .data { color: var(--ink); }
+.rc .hash { color: var(--purple); }
+/* Belum ada tx karena kontraknya belum ada. Dibuat redup, bukan diberi warna
+   aksen seperti hash sungguhan — janji kosong tidak boleh terlihat semenarik
+   bukti. */
+.rc .pending { color: var(--dimmer); }
+
+.row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s2); padding: 12px 0; border-top: var(--hair); }
+.row:first-of-type { border-top: none; }
+.row .k { color: var(--dim); font-size: var(--t-small); }
+.row .v { font-family: var(--px); font-size: 11px; white-space: nowrap; }
+.row .v.acc { color: var(--purple); }
+.row .bps { color: var(--dimmer); font-size: 16px; margin-left: 6px; }
+
+/* ── split sheet tiga kolom (tiket 07) ──
+   Kolom PER PLAY tidak pernah berubah — itu yang membuatnya bisa dihitung
+   ulang. Kolom SESI INI adalah kolom pertama dikali jumlah play, dan itulah
+   satu-satunya angka yang bergerak saat track diputar. Keduanya berdampingan
+   supaya perkaliannya bisa diperiksa dengan mata, tanpa mempercayai halaman
+   ini. Discoped ke `.sheet` supaya `.row` di struk penutup tidak ikut. */
+.sheet .row { display: grid; grid-template-columns: 1fr auto auto; gap: var(--s2); }
+.sheet .row .v { text-align: right; min-width: 9ch; font-variant-numeric: tabular-nums; }
+.sheet .row .v.sess { color: var(--dim); }
+
+.sheet .row.head { padding-block: 0 8px; }
+.sheet .row.head .v {
+  font-family: var(--px); font-size: var(--t-eyebrow);
+  letter-spacing: 0.14em; color: var(--dimmer);
+}
+.sheet .row.sum .k, .sheet .row.sum .v { color: var(--dimmer); }
+.sheet .row.sum .v { font-size: 10px; }
+
+/* Satu kedipan saat play terhitung: umpan balik bahwa kolom SESI INI baru
+   saja bertambah. `steps(2)` supaya transisinya patah seperti sisa halaman,
+   bukan fade halus. */
+.sheet.flash .row .v.sess { animation: settled 0.6s steps(2); }
+@keyframes settled { 0%, 60% { color: var(--green); } }
+
+/* Kapan baris harus menumpuk ditentukan lebar KARTU, bukan lebar viewport —
+   dan keduanya tidak searah: di 861px `.proof` masih dua kolom, jadi kartunya
+   sempit (kolom nama tinggal 86px, "Studio Tepi 1000 bps" pecah tiga baris),
+   sementara di 700px `.proof` sudah satu kolom dan kartunya justru lega. Satu
+   media query tidak bisa benar di kedua sisi lompatan itu. Container query
+   bisa: dua kolom angka makan 198px + 32px gap, jadi di bawah ~400px sisanya
+   tidak cukup untuk nama payee dan nama naik ke barisnya sendiri. */
+.proof-r { container-type: inline-size; }
+
+@container (max-width: 400px) {
+  .sheet .row { grid-template-columns: auto auto; justify-content: space-between; }
+  .sheet .row .k { grid-column: 1 / -1; }
+  .sheet .row .v { text-align: left; }
+  .sheet .row .v.sess { text-align: right; }
+}
+
+.total { margin-top: var(--s3); padding-top: var(--s3); border-top: var(--line); display: flex; justify-content: space-between; align-items: baseline; }
+.total .k { font-family: var(--px); font-size: 10px; letter-spacing: 0.16em; color: var(--dim); }
+.total .v { font-family: var(--px); font-size: 14px; color: var(--green); }
+.disclaimer { margin-top: var(--s3); font-size: 16px; color: var(--dimmer); line-height: 1.5; }
+
+/* ── marquee ── */
+.marquee { margin-top: var(--s6); border-top: var(--line); border-bottom: var(--line); padding: 18px 0; overflow: hidden; white-space: nowrap; }
+.marquee-inner { display: inline-block; animation: slide 26s linear infinite; }
+.marquee span { font-family: var(--px); font-size: 11px; letter-spacing: 0.1em; padding-inline: var(--s3); }
+.marquee b { color: var(--purple); font-weight: 400; }
+@keyframes slide { to { transform: translateX(-50%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-inner { animation: none; }
+  .pulse { animation: none; }
+  .cursor { transition: none; }
+  .sheet.flash .row .v.sess { animation: none; }
+}
+
+/* ── babak ── */
+.act { padding-block: var(--s7); scroll-margin-top: var(--s6); }
+.act-head { max-width: 24ch; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s6); align-items: start; }
+@media (max-width: 860px) {
+  .act { padding-block: var(--s6); }
+  .split { grid-template-columns: 1fr; gap: var(--s4); }
+}
+
+/* ── perbandingan: ikon pixel + timeline + daftar ── */
+.cmp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); margin-top: var(--s6); }
+@media (max-width: 860px) { .cmp-grid { grid-template-columns: 1fr; } }
+.cmp { border: var(--line); background: var(--surface); padding: var(--s4); }
+.cmp-hd { display: flex; align-items: center; gap: var(--s2); margin-bottom: var(--s4); }
+.cmp-hd .lbl { font-family: var(--px); font-size: 11px; letter-spacing: 0.16em; }
+.cmp.bad .lbl { color: var(--red); }
+.cmp.good .lbl { color: var(--green); }
+
+.tl { display: flex; gap: 2px; height: 30px; margin-bottom: 12px; }
+.tl i { flex: 1; background: #1c1c1c; display: block; }
+.cmp.bad .tl i.on { background: var(--red); }
+.cmp.good .tl i.on { background: var(--green); }
+.tl-cap { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s2); padding-bottom: var(--s3); }
+.tl-cap .k { font-size: var(--t-small); color: var(--dim); }
+.tl-cap .v { font-family: var(--px); font-size: 11px; white-space: nowrap; }
+.cmp.bad .tl-cap .v { color: var(--red); }
+.cmp.good .tl-cap .v { color: var(--green); }
+.cmp .li { padding: 13px 0; border-top: var(--hair); font-size: var(--t-small); color: var(--dim); }
+.cmp.good .li { color: var(--ink); }
+
+/* ── babak PRODUCT: blok fitur berselang-seling ──
+   Visual pakai 1px dashed + surface, bukan border 3px: aturan restraint 04
+   menyisakan jatah border tebal untuk nav dan struk penutup. */
+.pblock { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s6); align-items: center; margin-top: var(--s6); }
+.pblock.flip .pb-visual { order: -1; }
+.pb-title { font-family: var(--px); font-size: 17px; line-height: 1.5; font-weight: 400; margin-block: var(--s2) var(--s3); }
+.pb-title em { color: var(--purple); font-style: normal; }
+.pb-visual { border: var(--hair); background: var(--surface); padding: var(--s4); }
+@media (max-width: 860px) {
+  .pblock { grid-template-columns: 1fr; gap: var(--s4); }
+  .pblock.flip .pb-visual { order: 0; }
+}
+
+.pv-head { margin-bottom: var(--s3); }
+.pv-block { margin-top: var(--s4); }
+.pv-block + .pv-block { margin-top: var(--s3); }
+.trust-row { padding-block: 12px; border-top: var(--hair); }
+.trust-score { font-size: 16px; color: var(--dim); margin-top: 6px; }
+
+.badge {
+  display: inline-block; font-family: var(--px); font-size: 10px;
+  letter-spacing: 0.14em; padding: 9px 11px;
+  background: var(--purple); color: var(--void);
+}
+.badge-note { margin-top: var(--s2); font-size: 16px; color: var(--dimmer); line-height: 1.5; }
+
+.meter-cap { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s2); margin-bottom: 12px; }
+.meter-cap.tight { margin-bottom: 0; }
+.meter-cap .k { font-size: var(--t-small); color: var(--dim); }
+.meter-cap .v { font-family: var(--px); font-size: 11px; white-space: nowrap; }
+
+/* skor trust: ungu untuk yang lolos, merah untuk pola farming.
+   BUKAN hijau — aturan restraint 05 menyimpan hijau khusus untuk uang yang
+   bertambah, dan hijau + merah + ungu di satu panel sudah 3 aksen. */
+.score { height: 10px; background: #232323; margin-top: 8px; }
+.score i { display: block; height: 100%; background: var(--purple); }
+.score.low i { background: var(--red); }
+
+/* ── babak PROOF penutup: struk ──
+   Dokumen, bukan tabel kedua. Hero memperlihatkan angka bergerak; di sini
+   angkanya diam dan disusun seperti buku kas — MASUK di atas, KELUAR di
+   bawah, lalu satu baris aritmatika telanjang supaya bisa dijumlahkan ulang
+   tanpa mempercayai halaman ini. */
+.close {
+  border: var(--line); background: var(--surface);
+  margin-top: var(--s6); max-width: 720px; margin-inline: auto;
+}
+.close-hd {
+  display: flex; justify-content: space-between; align-items: baseline; gap: var(--s2);
+  background: var(--surface-2); border-bottom: var(--hair); padding: var(--s3) var(--s5);
+}
+.close-hd .t { font-family: var(--px); font-size: 11px; letter-spacing: 0.16em; }
+.close-hd .b { font-size: var(--t-small); color: var(--dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.close-body { padding: var(--s5); }
+
+.ledger { margin-top: var(--s4); }
+.ledger .eyebrow { margin-bottom: var(--s2); }
+
+.check { margin-top: var(--s4); padding-top: var(--s3); border-top: var(--hair); }
+.check .eyebrow { margin-bottom: 10px; }
+.check-line {
+  font-size: var(--t-data); color: var(--ink);
+  font-variant-numeric: tabular-nums; letter-spacing: 0.02em; line-height: 1.5;
+}
+
+.close .honesty { margin-top: var(--s4); font-size: 16px; color: var(--dimmer); line-height: 1.5; max-width: 60ch; }
+.close-cta { display: flex; gap: var(--s2); flex-wrap: wrap; justify-content: center; margin-top: var(--s5); }
+
+/* ── footer ──
+   1px dashed, bukan border 3px: jatah dua wadah tebal per layar sudah dipakai
+   nav dan struk penutup (aturan restraint 04). */
+.ft { border-top: var(--hair); padding-block: var(--s5) var(--s4); }
+.ft-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: var(--s4); align-items: start; }
+.ft-brand .brand { font-size: 16px; }
+.ft-brand p { margin-top: var(--s2); max-width: 30ch; }
+.ft-col .eyebrow { margin-bottom: var(--s2); }
+.ft-col a { display: block; font-size: var(--t-small); color: var(--dim); text-decoration: none; padding: 7px 0; }
+.ft-col a:hover { color: var(--ink); }
+.ft-col a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.ft-row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s2); font-size: var(--t-small); color: var(--dim); padding: 7px 0; }
+.ft-row b { color: var(--ink); font-weight: 400; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ft-base {
+  display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3);
+  flex-wrap: wrap; margin-top: var(--s5); padding-top: var(--s3);
+  border-top: var(--hair); font-size: 16px; color: var(--dimmer);
+}
+.ft-status { font-family: var(--px); font-size: 9px; letter-spacing: 0.14em; color: var(--dimmer); }
+
+/* ══ responsif ══
+   Breakpoint 860px sudah ditangani di tiap blok di atas (grid dua kolom jadi
+   satu). Yang di bawah ini khusus layar sempit: di 360px, padding 40px di
+   dalam kartu memakan sepertiga lebar layar, dan strip timeline 48 slot
+   menyusut jadi garis rambut. */
+@media (max-width: 860px) {
+  .close-hd { padding: var(--s3) var(--s4); }
+  .close-body { padding: var(--s4); }
+}
+
+@media (max-width: 640px) {
+  .shell { padding-inline: var(--s2); }
+
+  .nav { inset: var(--s2) 0 auto 0; }
+  .nav-box { gap: var(--s3); padding: 10px 10px 10px 16px; box-shadow: 4px 4px 0 var(--purple-dark); }
+  .brand { font-size: 11px; }
+  .nav-box .btn { padding: 10px 12px; font-size: 9px; }
+
+  .hero { padding-top: calc(var(--s6) + var(--s3)); padding-bottom: var(--s5); }
+  /* Tombol selebar layar: 44px tinggi saja tidak cukup kalau targetnya sempit. */
+  .cta .btn, .close-cta .btn { flex: 1 1 100%; text-align: center; }
+
+  .proof-l, .proof-r { padding: var(--s3); }
+  .cmp { padding: var(--s3); }
+  .cmp-hd svg { width: 44px; height: 44px; }
+  .tl { gap: 1px; height: 24px; }
+  .bar { gap: 2px; }
+
+  .pb-visual { padding: var(--s3); }
+  .close-hd { padding: var(--s3); }
+  .close-body { padding: var(--s3); }
+
+  .ft-grid { grid-template-columns: 1fr; gap: var(--s4); }
+}
+
+/* ── lapisan cursor (tiket 06) ──
+   `inset: 0` di sini berarti "seukuran <body>", dan body membentang setinggi
+   dokumen — itu sebabnya body diberi `position: relative`. Lapisan ini
+   sekaligus jadi container referensi untuk normalisasi koordinat: pengirim
+   membagi dengan rect-nya, penerima mengalikan dengan rect miliknya sendiri.
+   `overflow: hidden` menahan label di tepi kanan supaya tidak menambah lebar
+   dokumen. */
+.cursor-layer { position: absolute; inset: 0; pointer-events: none; z-index: 40; overflow: hidden; }
+.cursor { position: absolute; top: 0; left: 0; pointer-events: none; will-change: transform; transition: transform 120ms linear; display: flex; align-items: flex-start; }
+.cursor b { font-family: var(--px); font-size: 9px; padding: 5px 7px; color: #000; font-weight: 400; white-space: nowrap; margin-top: 12px; margin-left: -2px; }
+
+/* Jumlah orang lain — dari Presence, bukan dari jumlah cursor yang tergambar:
+   orang yang belum menggerakkan mouse tetap terhitung hadir. Border 1px
+   dashed, bukan 3px (aturan restraint 04), dan tanpa hard shadow karena
+   benda ini tidak bisa diklik (aturan 03). */
+.presence-note {
+  position: fixed; left: var(--s3); bottom: var(--s3); z-index: 45;
+  font-size: 16px; color: var(--dim); background: var(--void);
+  border: var(--hair); padding: 6px 12px; pointer-events: none;
+}
+.presence-note i { font-style: normal; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 1023px) { .cursor-layer, .presence-note { display: none; } }
