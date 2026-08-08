@@ -3,16 +3,18 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAccount } from "wagmi";
-import { getPlaylistsByOwner, type Playlist } from "@/lib/playlists";
+import { getPlaylistsByOwner, getPlaylistArtists, formatArtistList, type Playlist } from "@/lib/playlists";
 import { uploadCover } from "@/lib/uploadCover";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { StatusLine } from "@/components/ui/StatusLine";
 import { PixelCover } from "@/components/ui/PixelCover";
+import { PixelIcon } from "@/components/ui/PixelIcon";
 
 export function PlaylistManager() {
   const { address, isConnected } = useAccount();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [playlistArtists, setPlaylistArtists] = useState<Record<number, string[]>>({});
   const [name, setName] = useState("");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [creating, setCreating] = useState(false);
@@ -20,6 +22,19 @@ export function PlaylistManager() {
   useEffect(() => {
     if (address) getPlaylistsByOwner(address).then(setPlaylists);
   }, [address]);
+
+  useEffect(() => {
+    if (playlists.length === 0) return;
+    let cancelled = false;
+    Promise.all(playlists.map((p) => getPlaylistArtists(p.id).then((artists) => [p.id, artists] as const))).then(
+      (entries) => {
+        if (!cancelled) setPlaylistArtists(Object.fromEntries(entries));
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [playlists]);
 
   async function createPlaylist(e: React.FormEvent) {
     e.preventDefault();
@@ -75,11 +90,16 @@ export function PlaylistManager() {
       <div className="grid md:grid-cols-3 gap-6">
         {playlists.map((p) => (
           <Link key={p.id} href={`/playlist/${p.id}`} className="media-card">
-            <div className="media-cover">
+            <div className="media-cover cover-frame">
               <PixelCover seed={`playlist-${p.id}-${p.name}`} src={p.cover_url} />
+              <span className="cover-play">
+                <PixelIcon name="play" size={18} />
+              </span>
             </div>
             <div className="media-title">{p.name.toUpperCase()}</div>
-            <div className="media-sub">{new Date(p.created_at).toLocaleDateString("id-ID")}</div>
+            <div className="media-sub line-clamp-2">
+              {formatArtistList(playlistArtists[p.id] ?? []) ?? new Date(p.created_at).toLocaleDateString("id-ID")}
+            </div>
           </Link>
         ))}
       </div>

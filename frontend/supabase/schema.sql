@@ -194,3 +194,23 @@ create policy "public read covers" on storage.objects
 drop policy if exists "public upload covers" on storage.objects;
 create policy "public upload covers" on storage.objects
   for insert with check (bucket_id = 'covers');
+
+-- Artist stories — IG-story-style posts. Gated in the UI to wallets that own
+-- at least one registered song (checked on-chain, same pattern used
+-- elsewhere in this app), not by a signature — consistent with this app's
+-- "no signature-based auth" posture. Public read (anyone can view), writes
+-- only via the service role key from /api/stories.
+create table if not exists artist_stories (
+  id            bigserial primary key,
+  artist_wallet text not null,
+  artist_name   text not null,
+  caption       text,
+  image_url     text,
+  created_at    timestamptz not null default now()
+);
+create index if not exists artist_stories_wallet_idx on artist_stories (artist_wallet);
+create index if not exists artist_stories_created_idx on artist_stories (created_at);
+
+alter table artist_stories enable row level security;
+drop policy if exists "public read artist_stories" on artist_stories;
+create policy "public read artist_stories" on artist_stories for select using (true);
