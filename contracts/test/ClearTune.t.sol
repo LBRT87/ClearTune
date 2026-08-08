@@ -19,12 +19,6 @@ contract ClearTuneTest is Test {
         token = new MockUSD();
         router = new ClearTune(address(token), backend);
 
-        // Seed treasury for free-play tests.
-        token.faucet();
-        token.approve(address(router), 500 * 10 ** 6);
-        router.fundTreasury(500 * 10 ** 6);
-
-        // Fund listener and approve router.
         vm.prank(listener);
         token.faucet();
         vm.prank(listener);
@@ -39,6 +33,18 @@ contract ClearTuneTest is Test {
         bps[0] = 6000;
         bps[1] = 4000;
         songId = router.registerSong(keccak256("fp1"), keccak256("hash1"), "ipfs://song1", payees, bps);
+    }
+
+    function _topUp(uint256 amount) internal {
+        vm.prank(listener);
+        router.topUp(amount);
+    }
+
+    function _report(uint256 songId) internal {
+        ClearTune.PlayReport[] memory reports = new ClearTune.PlayReport[](1);
+        reports[0] = ClearTune.PlayReport({listener: listener, songId: songId});
+        vm.prank(backend);
+        router.reportPlays(reports);
     }
 
     function test_registerSong_rejectsBadBpsSum() public {
@@ -92,77 +98,63 @@ contract ClearTuneTest is Test {
         router.registerSong(keccak256("fp11"), keccak256("h11"), "uri", payees, bps);
     }
 
-    function test_playUnderCap_deductsFromSubscription() public {
-        uint256 songId = _registerSong();
-
+    function test_topUp_rejectsBelowMinimum() public {
+        (,, uint256 minTopUp) = router.getConfig();
         vm.prank(listener);
-        router.subscribe(100 * 10 ** 6);
+        vm.expectRevert(bytes("ClearTune: below minimum top-up"));
+        router.topUp(minTopUp - 1);
+    }
 
-        ClearTune.PlayReport[] memory reports = new ClearTune.PlayReport[](1);
-        reports[0] = ClearTune.PlayReport({listener: listener, songId: songId});
+    function test_topUp_increasesBalance() public {
+        (,, uint256 minTopUp) = router.getConfig();
+        _topUp(minTopUp);
+        assertEq(router.balance(listener), minTopUp);
+    }
 
-        vm.prank(backend);
-        router.reportPlays(reports);
+    function test_playWithSufficientBalance_deductsAndPays() public {
+        uint256 songId = _registerSong();
+        _topUp(50 * 10 ** 6);
 
-        (, uint256 ratePerPlay,) = router.getConfig();
-        assertEq(router.playsThisMonth(listener), 1);
-        assertEq(router.subBalance(listener), 100 * 10 ** 6 - ratePerPlay);
+        _report(songId);
+
+        (uint256 ratePerPlay,,) = router.getConfig();
+        assertEq(router.balance(listener), 50 * 10 ** 6 - ratePerPlay);
         assertGt(router.earned(artist1), 0);
         assertGt(router.earned(artist2), 0);
-        assertGt(router.treasury(), 500 * 10 ** 6); // 8% fee accrued on top of seed
+        assertGt(router.treasury(), 0);
     }
 
-    function test_playOverCap_withoutAutoRefill_fundedByTreasury() public {
+    function test_playWithInsufficientBalance_skipsWithoutRevert() public {
         uint256 songId = _registerSong();
 
-        router.setConfig(0, 1000, 800); // cap of 0: every play is "over cap" immediately
+        assertEq(router.balance(listener), 0);
+        _report(songId);
 
-        vm.prank(listener);
-        router.subscribe(10 * 10 ** 6);
+        assertEq(router.earned(artist1), 0);
+        assertEq(router.earned(artist2), 0);
+        assertEq(router.treasury(), 0);
+    }
 
-        uint256 treasuryBefore = router.treasury();
-        uint256 subBefore = router.subBalance(listener);
+    function test_reportPlays_batchSkipsLowBalanceButProcessesRest() public {
+        uint256 songId = _registerSong();
+        (uint256 ratePerPlay, uint16 feeBps,) = router.getConfig();
+        router.setConfig(ratePerPlay, feeBps, ratePerPlay);
+        _topUp(ratePerPlay);
 
-        ClearTune.PlayReport[] memory reports = new ClearTune.PlayReport[](1);
+        ClearTune.PlayReport[] memory reports = new ClearTune.PlayReport[](2);
         reports[0] = ClearTune.PlayReport({listener: listener, songId: songId});
+        reports[1] = ClearTune.PlayReport({listener: listener, songId: songId});
         vm.prank(backend);
         router.reportPlays(reports);
 
-        assertEq(router.subBalance(listener), subBefore, "listener must not be charged");
-        assertLt(router.treasury(), treasuryBefore, "treasury must fund the free play");
+        assertEq(router.balance(listener), 0);
         assertGt(router.earned(artist1) + router.earned(artist2), 0);
-    }
-
-    function test_playOverCap_withAutoRefill_deductsFromSubscription() public {
-        uint256 songId = _registerSong();
-        router.setConfig(0, 1000, 800);
-
-        vm.prank(listener);
-        router.subscribe(10 * 10 ** 6);
-        vm.prank(listener);
-        router.toggleAutoRefill(true);
-
-        uint256 treasuryBefore = router.treasury();
-        uint256 subBefore = router.subBalance(listener);
-
-        ClearTune.PlayReport[] memory reports = new ClearTune.PlayReport[](1);
-        reports[0] = ClearTune.PlayReport({listener: listener, songId: songId});
-        vm.prank(backend);
-        router.reportPlays(reports);
-
-        assertLt(router.subBalance(listener), subBefore, "auto-refill must charge the listener");
-        assertEq(router.treasury(), treasuryBefore + 80, "fee still accrues to treasury");
     }
 
     function test_withdraw_zeroesBalanceBeforeTransfer() public {
         uint256 songId = _registerSong();
-        vm.prank(listener);
-        router.subscribe(100 * 10 ** 6);
-
-        ClearTune.PlayReport[] memory reports = new ClearTune.PlayReport[](1);
-        reports[0] = ClearTune.PlayReport({listener: listener, songId: songId});
-        vm.prank(backend);
-        router.reportPlays(reports);
+        _topUp(50 * 10 ** 6);
+        _report(songId);
 
         uint256 owed = router.earned(artist1);
         assertGt(owed, 0);
@@ -172,13 +164,6 @@ contract ClearTuneTest is Test {
 
         assertEq(router.earned(artist1), 0);
         assertEq(token.balanceOf(artist1), owed);
-    }
-
-    function test_autoRefill_isOptInNotDefault() public {
-        assertFalse(router.autoRefillEnabled(listener));
-        vm.prank(listener);
-        router.toggleAutoRefill(true);
-        assertTrue(router.autoRefillEnabled(listener));
     }
 
     function test_onlyOwner_canChangeConfig() public {
@@ -208,16 +193,11 @@ contract ClearTuneTest is Test {
         bps[2] = 3334;
         uint256 songId = router.registerSong(keccak256("fp3"), keccak256("h3"), "uri3", payees, bps);
 
-        vm.prank(listener);
-        router.subscribe(100 * 10 ** 6);
-
-        ClearTune.PlayReport[] memory reports = new ClearTune.PlayReport[](1);
-        reports[0] = ClearTune.PlayReport({listener: listener, songId: songId});
-        vm.prank(backend);
-        router.reportPlays(reports);
+        _topUp(50 * 10 ** 6);
+        _report(songId);
 
         uint256 total = router.earned(artist1) + router.earned(artist2) + router.earned(address(0xAA3));
-        (, uint256 ratePerPlay, uint16 feeBps) = router.getConfig();
+        (uint256 ratePerPlay, uint16 feeBps,) = router.getConfig();
         uint256 expectedToPayees = ratePerPlay - (ratePerPlay * feeBps) / 10000;
         assertEq(total, expectedToPayees, "no dust should be lost");
     }

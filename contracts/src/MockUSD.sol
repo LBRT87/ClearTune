@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-/// @notice Minimal ERC-20, 6 decimals, with an open faucet for demo purposes.
-/// Not a traded/speculative asset — see project-spec.md section 2.4.
 contract MockUSD {
     string public constant name = "MockUSD";
     string public constant symbol = "mUSD";
@@ -39,8 +37,6 @@ contract MockUSD {
         return true;
     }
 
-    /// @notice Mint free demo funds to the caller. Anyone can call, any time — this is
-    /// a testnet demo token, not a real asset.
     function faucet() external {
         _mint(msg.sender, FAUCET_AMOUNT);
         emit Faucet(msg.sender, FAUCET_AMOUNT);
