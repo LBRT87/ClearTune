@@ -166,6 +166,32 @@ contract ClearTuneTest is Test {
         assertEq(token.balanceOf(artist1), owed);
     }
 
+    function test_withdrawTreasury_movesFeeToOwner() public {
+        uint256 songId = _registerSong();
+        _topUp(50 * 10 ** 6);
+        _report(songId);
+
+        uint256 fee = router.treasury();
+        assertGt(fee, 0);
+
+        address treasuryRecipient = address(0xCA5);
+        router.withdrawTreasury(treasuryRecipient, fee);
+
+        assertEq(router.treasury(), 0);
+        assertEq(token.balanceOf(treasuryRecipient), fee);
+    }
+
+    function test_withdrawTreasury_rejectsAboveBalance() public {
+        vm.expectRevert(bytes("ClearTune: invalid treasury amount"));
+        router.withdrawTreasury(address(0xCA5), 1);
+    }
+
+    function test_withdrawTreasury_onlyOwner() public {
+        vm.prank(listener);
+        vm.expectRevert(bytes("ClearTune: not owner"));
+        router.withdrawTreasury(listener, 0);
+    }
+
     function test_onlyOwner_canChangeConfig() public {
         vm.prank(listener);
         vm.expectRevert(bytes("ClearTune: not owner"));

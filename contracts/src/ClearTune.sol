@@ -48,6 +48,7 @@ contract ClearTune {
     event Withdrawn(address indexed payee, uint256 amount);
     event ConfigUpdated(uint256 ratePerPlay, uint16 platformFeeBps, uint256 minTopUp);
     event BackendUpdated(address indexed backend);
+    event TreasuryWithdrawn(address indexed to, uint256 amount);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "ClearTune: not owner");
@@ -155,6 +156,14 @@ contract ClearTune {
         earned[msg.sender] = 0;
         require(token.transfer(msg.sender, amount), "ClearTune: transfer failed");
         emit Withdrawn(msg.sender, amount);
+    }
+
+    function withdrawTreasury(address to, uint256 amount) external onlyOwner {
+        require(to != address(0), "ClearTune: zero address");
+        require(amount > 0 && amount <= treasury, "ClearTune: invalid treasury amount");
+        treasury -= amount;
+        require(token.transfer(to, amount), "ClearTune: transfer failed");
+        emit TreasuryWithdrawn(to, amount);
     }
 
     function setConfig(uint256 newRatePerPlay, uint16 newPlatformFeeBps, uint256 newMinTopUp) external onlyOwner {

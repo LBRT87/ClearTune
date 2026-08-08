@@ -1,8 +1,8 @@
 # --- Foundry ---
 cache/
 out/
-broadcast/*/31337/
-broadcast/*/31337-fork/
+**/broadcast/*/31337/
+**/broadcast/*/31337-fork/
 
 # --- Node / Next.js (for when frontend lands) ---
 node_modules/
