@@ -293,6 +293,32 @@
     width: 100%;
     min-width: 0;
   }
+  /* Vertical divider + trailing icon button (e.g. BROWSE) inside the search
+     pill, right of the input. */
+  .sidebar-lookup-divider {
+    width: 1px;
+    height: 20px;
+    background: #3a3a3a;
+    flex-shrink: 0;
+  }
+  .sidebar-lookup-trailing {
+    display: flex;
+    align-items: center;
+    color: #9a9a9a;
+    flex-shrink: 0;
+  }
+  .sidebar-lookup-trailing:hover {
+    color: #8b5cf6;
+  }
+  /* Big standalone search, e.g. the /home browse row (as opposed to the
+     compact one squeezed into a persistent top bar). */
+  .sidebar-lookup-lg {
+    padding: 18px 26px;
+    gap: 14px;
+  }
+  .sidebar-lookup-lg .sidebar-lookup-input {
+    font-size: 24px;
+  }
 
   .sidebar-chain-btn {
     display: flex;
@@ -309,6 +335,29 @@
   .sidebar-chain-btn:hover {
     border-color: #8b5cf6;
     color: #8b5cf6;
+  }
+
+  /* Small unread-style dot, pinned to the corner of an icon button. */
+  .icon-btn-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 10px;
+    height: 10px;
+    background: #ffe14d;
+    border: 2px solid #000000;
+  }
+
+  /* Pixel usage/quota bar — solid fill, no gradient, hard-edged like the
+     rest of this system's meters/status pieces. */
+  .usage-bar {
+    border: 3px solid #ffffff;
+    height: 26px;
+    background: #000000;
+    overflow: hidden;
+  }
+  .usage-bar-fill {
+    height: 100%;
   }
 
   /* Global search — dropdown results under the top-bar search field */
@@ -389,27 +438,50 @@
   }
 
   /* Media cards — Spotify-style horizontal rows (playlists / songs), cover
-     art is procedurally generated (see PixelCover) since there are no
-     uploaded images in this data model. */
+     art is real (uploaded) or a procedural pixel-art fallback (PixelCover). */
   .media-row {
     display: flex;
     gap: 22px;
     overflow-x: auto;
-    padding-bottom: 10px;
+    /* Setting overflow-x to anything but visible forces overflow-y to
+       compute as auto too (CSS spec), even though we never asked for
+       vertical clipping — so the hover scale on .cover-frame needs real
+       padding room here, or its top/bottom border gets sliced off by that
+       invisible clip boundary. */
+    padding: 10px 4px 16px;
   }
   .media-card {
+    position: relative;
     flex-shrink: 0;
     width: 168px;
     text-align: left;
   }
+  /* Raise the hovered card above its siblings — otherwise the next card in
+     the row (later in DOM order) paints over the scaled-up border on that
+     side, making it look like half the border vanished. */
+  .media-card:hover,
+  .cover-hover:hover {
+    position: relative;
+    z-index: 5;
+  }
+  /* Sizing only — the visual frame (border/radius/shadow/hover) lives in
+     .cover-frame below, shared with catalog's fluid (aspect-square) cards. */
   .media-cover {
     width: 168px;
     height: 168px;
+    margin-bottom: 12px;
+  }
+  .cover-frame {
     border: 3px solid #ffffff;
+    border-radius: 20px;
     box-shadow: 6px 6px 0 #241033;
     position: relative;
     overflow: hidden;
-    margin-bottom: 12px;
+    transition: transform 0.15s ease;
+  }
+  .media-card:hover .cover-frame,
+  .cover-hover:hover .cover-frame {
+    transform: scale(1.06);
   }
   .media-badge {
     position: absolute;
@@ -420,6 +492,29 @@
     padding: 5px 8px;
     background: #ffe14d;
     color: #000000;
+  }
+  /* Play button — hidden until the card is hovered, centered over the cover. */
+  .cover-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    border: 3px solid #000000;
+    background: #8b5cf6;
+    color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    box-shadow: 4px 4px 0 #000000;
+    transition: opacity 0.15s ease;
+  }
+  .media-card:hover .cover-play,
+  .cover-hover:hover .cover-play {
+    opacity: 1;
   }
   .media-title {
     font-family: var(--font-press-start), monospace;
@@ -442,6 +537,63 @@
   .story-bubble-empty {
     border-color: #9a9a9a;
     box-shadow: 3px 3px 0 #3a3a3a;
+  }
+
+  /* "+N more" peek stack — a dimmed ghost bubble peeking out from behind the
+     front one, badge shows how many stories are hidden past the first 3. */
+  .story-stack {
+    position: relative;
+    display: inline-flex;
+    width: 54px;
+    height: 54px;
+  }
+  .story-stack-ghost {
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    width: 54px;
+    height: 54px;
+    z-index: 0;
+  }
+  .story-stack-main {
+    position: relative;
+    z-index: 1;
+  }
+  .story-stack-badge {
+    position: absolute;
+    inset: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.65);
+    font-family: var(--font-press-start), monospace;
+    font-size: 10px;
+    color: #ffffff;
+    z-index: 2;
+  }
+
+  /* Full-screen story viewer */
+  .story-progress-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.25);
+    overflow: hidden;
+  }
+  .story-progress-fill {
+    height: 100%;
+    background: #ffffff;
+    width: 0%;
+  }
+  .story-progress-fill-active {
+    animation: story-fill 4s linear forwards;
+  }
+  @keyframes story-fill {
+    from {
+      width: 0%;
+    }
+    to {
+      width: 100%;
+    }
   }
 
   /* Scanline sweep, used behind the landing-page connect gate. */
