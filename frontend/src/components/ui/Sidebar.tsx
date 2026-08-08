@@ -3,18 +3,22 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAccount } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import { PixelIcon, type PixelIconName } from "./PixelIcon";
 import { ConnectWalletButton } from "./WalletControls";
+import { CLEARTUNE_ADDRESS, clearTuneAbi } from "@/lib/contracts";
 
+// CATALOG is reachable via BROWSE (top bar) and "SHOW ALL" on /home, so it's
+// dropped from the main nav rather than duplicated here. REGISTER SONG is an
+// artist-onboarding action, not a regular-listener destination — not in the
+// default nav (still reachable directly at /register for anyone onboarding
+// an artist). ADMIN is handled separately below: only shown to the wallet
+// that's actually the on-chain contract owner, not listed here.
 const NAV_ITEMS: { href: string; label: string; icon: PixelIconName }[] = [
   { href: "/home", label: "HOME", icon: "home" },
-  { href: "/catalog", label: "CATALOG", icon: "catalog" },
-  { href: "/subscribe", label: "SUBSCRIBE", icon: "subscribe" },
+  { href: "/usage", label: "USAGE", icon: "subscribe" },
   { href: "/playlists", label: "PLAYLISTS", icon: "playlist" },
   { href: "/dashboard", label: "DASHBOARD", icon: "dashboard" },
-  { href: "/register", label: "REGISTER SONG", icon: "register" },
-  { href: "/admin", label: "ADMIN", icon: "admin" },
 ];
 
 function NavLink({
@@ -45,6 +49,12 @@ function NavLink({
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { address } = useAccount();
+  const { data: owner } = useReadContract({
+    address: CLEARTUNE_ADDRESS,
+    abi: clearTuneAbi,
+    functionName: "owner",
+  });
+  const isOwner = !!address && !!owner && address.toLowerCase() === (owner as string).toLowerCase();
 
   return (
     <div className="flex flex-col h-full">
@@ -72,6 +82,15 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             label="MY PROFILE"
             icon="profile"
             active={pathname === `/u/${address}`}
+            onNavigate={onNavigate}
+          />
+        )}
+        {isOwner && (
+          <NavLink
+            href="/admin"
+            label="ADMIN"
+            icon="admin"
+            active={pathname.startsWith("/admin")}
             onNavigate={onNavigate}
           />
         )}

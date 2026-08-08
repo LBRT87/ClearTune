@@ -13,13 +13,29 @@ function hash(seed: string) {
 
 export function PixelAvatar({
   seed,
+  src,
   size = 40,
   className = "",
 }: {
   seed: string;
+  src?: string | null;
   size?: number;
   className?: string;
 }) {
+  if (src) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt=""
+        width={size}
+        height={size}
+        style={{ width: size, height: size }}
+        className={`object-cover ${className}`}
+      />
+    );
+  }
+
   const h = hash(seed || "?");
   const color = PALETTE[h % PALETTE.length];
   const cols = 5;

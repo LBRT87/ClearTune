@@ -6,7 +6,15 @@ import { PixelIcon } from "./PixelIcon";
 
 type SearchResult = { id: number; title: string; artist: string };
 
-export function GlobalSearch({ className = "" }: { className?: string }) {
+export function GlobalSearch({
+  className = "",
+  size = "default",
+  trailing,
+}: {
+  className?: string;
+  size?: "default" | "lg";
+  trailing?: React.ReactNode;
+}) {
   const router = useRouter();
   const boxRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
@@ -52,15 +60,15 @@ export function GlobalSearch({ className = "" }: { className?: string }) {
   }
 
   return (
-    <div ref={boxRef} className={`relative w-full max-w-xl ${className}`}>
+    <div ref={boxRef} className={`relative w-full ${size === "lg" ? "max-w-none" : "max-w-xl"} ${className}`}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           if (results[0]) goTo(results[0].id);
         }}
-        className="sidebar-lookup"
+        className={`sidebar-lookup ${size === "lg" ? "sidebar-lookup-lg" : ""}`}
       >
-        <PixelIcon name="search" size={13} className="text-dim shrink-0" />
+        <PixelIcon name="search" size={size === "lg" ? 18 : 13} className="text-dim shrink-0" />
         <input
           type="text"
           placeholder="Cari judul lagu atau nama artis..."
@@ -72,6 +80,12 @@ export function GlobalSearch({ className = "" }: { className?: string }) {
           onFocus={() => setOpen(true)}
           className="sidebar-lookup-input"
         />
+        {trailing && (
+          <>
+            <span className="sidebar-lookup-divider" />
+            {trailing}
+          </>
+        )}
       </form>
 
       {open && query.trim().length >= 2 && (
