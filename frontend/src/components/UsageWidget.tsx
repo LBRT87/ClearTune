@@ -9,7 +9,7 @@ import { Field } from "@/components/ui/Field";
 import { Card, StatRow } from "@/components/ui/Card";
 import { StatusLine } from "@/components/ui/StatusLine";
 
-export function SubscribeWidget() {
+export function UsageWidget() {
   const { address, isConnected } = useAccount();
   const { writeContractAsync, isPending } = useWriteContract();
   const [amount, setAmount] = useState("50");
@@ -39,6 +39,20 @@ export function SubscribeWidget() {
     query: { enabled: !!address },
   });
 
+  const { data: playsThisMonth } = useReadContract({
+    address: CLEARTUNE_ADDRESS,
+    abi: clearTuneAbi,
+    functionName: "playsThisMonth",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  });
+
+  const { data: config } = useReadContract({
+    address: CLEARTUNE_ADDRESS,
+    abi: clearTuneAbi,
+    functionName: "getConfig",
+  });
+
   async function handleFaucet() {
     await writeContractAsync({ address: MOCKUSD_ADDRESS, abi: mockUsdAbi, functionName: "faucet" });
     refetchBalance();
@@ -60,11 +74,35 @@ export function SubscribeWidget() {
   }
 
   if (!isConnected) {
-    return <StatusLine variant="info" label="HUBUNGKAN DOMPET" detail="Sambungkan dompet untuk top up subscription." />;
+    return <StatusLine variant="info" label="HUBUNGKAN DOMPET" detail="Sambungkan dompet untuk lihat pemakaian & top up." />;
   }
+
+  const playCap = config?.[0] ?? 0n;
+  const used = (playsThisMonth as bigint) ?? 0n;
+  const pct = playCap > 0n ? Math.min(100, Number((used * 100n) / playCap)) : 0;
+  const barColor = pct >= 100 ? "#ff5c5c" : pct >= 70 ? "#ffe14d" : "#4ade80";
 
   return (
     <div className="grid md:grid-cols-2 gap-6">
+      <Card eyebrow="PEMAKAIAN BULAN INI" className="md:col-span-2">
+        <div className="flex items-baseline justify-between mb-3">
+          <span className="text-lg text-dim">
+            {used.toString()} / {playCap.toString()} play
+          </span>
+          <span className="font-display text-[13px]" style={{ color: barColor }}>
+            {pct}%
+          </span>
+        </div>
+        <div className="usage-bar">
+          <div className="usage-bar-fill" style={{ width: `${pct}%`, background: barColor }} />
+        </div>
+        <p className="text-dim text-base mt-3">
+          {pct >= 100
+            ? "Kuota abis — sekarang jalan di mode gratis (dibayarin kas platform), kecuali auto-refill aktif."
+            : "Sisa kuota bulan ini sebelum jatuh ke mode gratis / auto-refill."}
+        </p>
+      </Card>
+
       <Card eyebrow="SALDO">
         <StatRow label="Saldo mUSD dompet" value={`${mUsdBalance !== undefined ? formatUnits(mUsdBalance as bigint, 6) : "—"} mUSD`} />
         <StatRow label="Saldo subscription (di kontrak)" value={`${subBalance !== undefined ? formatUnits(subBalance as bigint, 6) : "—"} mUSD`} accent />
@@ -73,7 +111,7 @@ export function SubscribeWidget() {
         </Button>
       </Card>
 
-      <Card eyebrow="TOP UP SUBSCRIPTION">
+      <Card eyebrow="TOP UP">
         <Field label="JUMLAH (mUSD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
         <Button variant="purple" onClick={handleSubscribe} disabled={isPending}>
           {isPending ? "MEMPROSES..." : "TOP UP"}

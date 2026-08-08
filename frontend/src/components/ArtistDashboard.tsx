@@ -90,6 +90,13 @@ export function ArtistDashboard({ songs }: { songs: SongRow[] }) {
     refetchEarned();
   }
 
+  const songPlayTotals = mySongs
+    .map((s) => ({
+      title: s.title,
+      plays: plays.filter((p) => p.song_id === s.song_id_onchain).reduce((sum, p) => sum + p.count, 0),
+    }))
+    .sort((a, b) => b.plays - a.plays);
+
   return (
     <div>
       <div className="grid md:grid-cols-2 gap-6 mb-10">
@@ -110,13 +117,8 @@ export function ArtistDashboard({ songs }: { songs: SongRow[] }) {
 
       <h2 className="font-display text-sm mb-6">ANALITIK</h2>
       <div className="grid md:grid-cols-2 gap-6 mb-10">
-        <Card eyebrow="PLAY PER LAGU">
-          <SongPlaysChart
-            data={mySongs.map((s) => ({
-              title: s.title,
-              plays: plays.filter((p) => p.song_id === s.song_id_onchain).reduce((sum, p) => sum + p.count, 0),
-            }))}
-          />
+        <Card eyebrow="LAGU PALING BANYAK DIDENGAR">
+          <SongPlaysChart data={songPlayTotals} />
         </Card>
         <Card eyebrow="SUMBER PENDAPATAN">
           <RevenueSplitChart subscription={subscriptionPlays} treasury={treasuryPlays} />
