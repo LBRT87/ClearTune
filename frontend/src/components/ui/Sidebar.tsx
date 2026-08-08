@@ -6,14 +6,19 @@ import { usePathname } from "next/navigation";
 import { useAccount } from "wagmi";
 import { PixelIcon, type PixelIconName } from "./PixelIcon";
 import { ConnectWalletButton } from "./WalletControls";
+import { useAuthState } from "@/components/auth/useAuthState";
+import { isPrivyConfigured } from "@/app/providers";
 
-const NAV_ITEMS: { href: string; label: string; icon: PixelIconName }[] = [
+type NavItem = { href: string; label: string; icon: PixelIconName; artistOnly?: boolean };
+
+const NAV_ITEMS: NavItem[] = [
   { href: "/home", label: "HOME", icon: "home" },
   { href: "/catalog", label: "CATALOG", icon: "catalog" },
+  { href: "/trending", label: "TRENDING", icon: "trending" },
   { href: "/topup", label: "TOP UP", icon: "topup" },
   { href: "/playlists", label: "PLAYLISTS", icon: "playlist" },
-  { href: "/dashboard", label: "DASHBOARD", icon: "dashboard" },
-  { href: "/register", label: "REGISTER SONG", icon: "register" },
+  { href: "/dashboard", label: "DASHBOARD", icon: "dashboard", artistOnly: true },
+  { href: "/register", label: "REGISTER SONG", icon: "register", artistOnly: true },
   { href: "/admin", label: "ADMIN", icon: "admin" },
 ];
 
@@ -42,9 +47,31 @@ function NavLink({
   );
 }
 
+// Only mounted when Privy is configured — isolates the useAuthState() call
+// (which throws without PrivyProvider) behind normal conditional rendering
+// instead of a conditional hook call. Mirrors AuthBoundary/AuthUnavailable.
+function ArtistNavGate({ children }: { children: (isArtist: boolean) => React.ReactNode }) {
+  const { profile } = useAuthState();
+  return <>{children(profile?.role === "artist")}</>;
+}
+
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { address } = useAccount();
+
+  const renderItems = (isArtist: boolean) => {
+    const items = NAV_ITEMS.filter((item) => !item.artistOnly || isArtist);
+    return items.map((item) => (
+      <NavLink
+        key={item.href}
+        href={item.href}
+        label={item.label}
+        icon={item.icon}
+        active={pathname.startsWith(item.href)}
+        onNavigate={onNavigate}
+      />
+    ));
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -56,16 +83,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </Link>
 
       <nav className="flex flex-col gap-1 px-3 py-4 overflow-y-auto flex-1">
-        {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.href}
-            href={item.href}
-            label={item.label}
-            icon={item.icon}
-            active={pathname.startsWith(item.href)}
-            onNavigate={onNavigate}
-          />
-        ))}
+        {isPrivyConfigured ? <ArtistNavGate>{renderItems}</ArtistNavGate> : renderItems(false)}
         {address && (
           <NavLink
             href={`/u/${address}`}
@@ -76,6 +94,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           />
         )}
       </nav>
+
+      <div className="px-3 py-4 border-t-[3px] border-ink shrink-0 flex justify-center">
+        <ConnectWalletButton compact />
+      </div>
     </div>
   );
 }

@@ -3,7 +3,34 @@
 -- creating the project. Writes happen write-through from the Next.js API
 -- routes at play-report/withdraw time — there is no external indexer.
 
-create type play_status_t as enum ('paid', 'skipped_low_balance');
+-- Postgres has no `CREATE TYPE IF NOT EXISTS` — this whole file is meant to
+-- be safe to re-run (e.g. after adding a new table), so every non-idempotent
+-- statement below is wrapped the same way.
+do $$ begin
+  create type play_status_t as enum ('paid', 'skipped_low_balance');
+exception when duplicate_object then null;
+end $$;
+
+-- Beyond the spec's explicit table list: Privy auth + role picker (artist vs
+-- listener). Server-only — the client never has service_role, so this is
+-- never read/written except through app/api/profile/route.ts. RLS is
+-- enabled with zero policies on purpose: that blocks the anon key entirely
+-- and only service_role (which bypasses RLS) can touch it.
+create table if not exists profiles (
+  privy_did    text primary key,
+  wallet       text unique,
+  role         text not null check (role in ('artist', 'listener')),
+  display_name text not null,
+  funded_at    timestamptz,
+  created_at   timestamptz not null default now()
+);
+-- Artist display names must be unique (checked in app/api/profile/route.ts
+-- via the 23505/display_name error path); listeners can share a name.
+create unique index if not exists profiles_artist_name_unique
+  on profiles (lower(display_name))
+  where role = 'artist';
+
+alter table profiles enable row level security;
 
 create table if not exists songs (
   id              bigserial primary key,
@@ -94,7 +121,9 @@ create table if not exists playlist_songs (
 
 alter table playlists enable row level security;
 alter table playlist_songs enable row level security;
+drop policy if exists "public read playlists" on playlists;
 create policy "public read playlists" on playlists for select using (true);
+drop policy if exists "public read playlist_songs" on playlist_songs;
 create policy "public read playlist_songs" on playlist_songs for select using (true);
 
 -- Beyond the spec's explicit table list: backs the 5.3 funding-graph
@@ -122,12 +151,19 @@ alter table chart_cache enable row level security;
 alter table treasury_log enable row level security;
 alter table funding_edges enable row level security;
 
+drop policy if exists "public read songs" on songs;
 create policy "public read songs" on songs for select using (true);
+drop policy if exists "public read song_credits" on song_credits;
 create policy "public read song_credits" on song_credits for select using (true);
+drop policy if exists "public read plays" on plays;
 create policy "public read plays" on plays for select using (true);
+drop policy if exists "public read wallet_stats" on wallet_stats;
 create policy "public read wallet_stats" on wallet_stats for select using (true);
+drop policy if exists "public read chart_cache" on chart_cache;
 create policy "public read chart_cache" on chart_cache for select using (true);
+drop policy if exists "public read treasury_log" on treasury_log;
 create policy "public read treasury_log" on treasury_log for select using (true);
+drop policy if exists "public read funding_edges" on funding_edges;
 create policy "public read funding_edges" on funding_edges for select using (true);
 
 -- `cover_url` on songs/playlists — added after the initial schema, so this is
@@ -145,12 +181,16 @@ insert into storage.buckets (id, name, public)
 values ('audio', 'audio', true), ('covers', 'covers', true)
 on conflict (id) do nothing;
 
+drop policy if exists "public read audio" on storage.objects;
 create policy "public read audio" on storage.objects
   for select using (bucket_id = 'audio');
+drop policy if exists "public upload audio" on storage.objects;
 create policy "public upload audio" on storage.objects
   for insert with check (bucket_id = 'audio');
 
+drop policy if exists "public read covers" on storage.objects;
 create policy "public read covers" on storage.objects
   for select using (bucket_id = 'covers');
+drop policy if exists "public upload covers" on storage.objects;
 create policy "public upload covers" on storage.objects
   for insert with check (bucket_id = 'covers');
