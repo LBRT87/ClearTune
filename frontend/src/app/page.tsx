@@ -37,7 +37,7 @@ export default function Home() {
           <span className="brand">
             CLEARTUNE<i>.</i>
           </span>
-          <a className="btn btn-purple" href="/home">
+          <a className="btn btn-purple" href="/masuk">
             BUKA APP
           </a>
         </div>
@@ -58,10 +58,14 @@ export default function Home() {
             Bukan direkap, bukan dijanjikan.
           </p>
           <div className="cta">
-            <a className="btn" href="/home">
+            {/* Tiga CTA memetakan berbeda (keputusan map auth). `?role=`
+                memilihkan copy di /daftar dan kartu di layar pilih peran —
+                tidak mengunci apa pun. Orang yang sudah punya sesi tidak
+                tertahan: /daftar melemparnya langsung ke tujuannya. */}
+            <a className="btn" href="/daftar?role=pendengar">
               DENGAR SEKARANG
             </a>
-            <a className="btn btn-ghost" href="/register">
+            <a className="btn btn-ghost" href="/daftar?role=musisi">
               SAYA MUSISI
             </a>
           </div>
@@ -291,10 +295,10 @@ export default function Home() {
           </div>
 
           <div className="close-cta">
-            <a className="btn btn-purple" href="/home">
+            <a className="btn btn-purple" href="/daftar?role=pendengar">
               DENGAR SEKARANG
             </a>
-            <a className="btn btn-ghost" href="/register">
+            <a className="btn btn-ghost" href="/daftar?role=musisi">
               DAFTARKAN LAGU
             </a>
           </div>

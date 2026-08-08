@@ -1,71 +1,99 @@
 "use client";
 
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+/* Tombol wallet — dulu RainbowKit `ConnectButton.Custom`, sekarang Privy.
+ *
+ * Nama ekspor, prop, dan seluruh class CSS-nya sengaja dipertahankan persis
+ * supaya pemakainya tidak perlu diubah. Yang berganti cuma isi modalnya:
+ * "connect wallet" jadi "login" yang menerima Google, email, ATAU wallet
+ * external.
+ *
+ * Alamat tetap dibaca lewat `useAccount()` wagmi biasa — `@privy-io/wagmi`
+ * yang menyediakan konteksnya, jadi tidak ada API khusus Privy yang bocor
+ * ke komponen lain.
+ */
+
+import { usePrivy } from "@privy-io/react-auth";
+import { useAccount } from "wagmi";
+import { monadTestnet } from "@/lib/chains";
 import { PixelIcon } from "./PixelIcon";
 
-// `compact` renders an icon-only coin button (for tight mobile top bars);
-// otherwise it's the full "CONNECT WALLET" pixel button.
-export function ConnectWalletButton({ compact = false }: { compact?: boolean }) {
-  return (
-    <ConnectButton.Custom>
-      {({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => {
-        const ready = mounted;
-        const connected = ready && account && chain;
+/** Dipakai juga oleh komponen lain yang cuma butuh "buka modal login". */
+export function useConnectPrompt() {
+  const { ready, authenticated, login } = usePrivy();
+  return {
+    ready,
+    authenticated,
+    /* Tidak bisa diklik sebelum Privy siap — mengkliknya saat `!ready`
+       adalah cara paling mudah membuka dua modal sekaligus. */
+    openConnectModal: () => {
+      if (ready && !authenticated) login();
+    },
+  };
+}
 
-        return (
-          <div
-            {...(!ready && {
-              "aria-hidden": true,
-              style: { opacity: 0, pointerEvents: "none", userSelect: "none" },
-            })}
+function short(address: string) {
+  return `${address.slice(0, 6)}…${address.slice(-4)}`;
+}
+
+export function ConnectWalletButton({ compact = false }: { compact?: boolean }) {
+  const { ready, authenticated, logout } = usePrivy();
+  const { openConnectModal } = useConnectPrompt();
+  const { address, chain } = useAccount();
+
+  const connected = ready && authenticated && Boolean(address);
+  const wrongNetwork = connected && chain !== undefined && chain.id !== monadTestnet.id;
+
+  return (
+    <div
+      {...(!ready && {
+        "aria-hidden": true,
+        style: { opacity: 0, pointerEvents: "none", userSelect: "none" },
+      })}
+    >
+      {!connected ? (
+        <button
+          onClick={openConnectModal}
+          type="button"
+          aria-label="Masuk"
+          className={`btn btn-warn flex items-center justify-center gap-3 ${compact ? "!p-3 !shadow-none" : "w-full"}`}
+        >
+          <PixelIcon name="coin" size={16} />
+          {!compact && <span>MASUK</span>}
+        </button>
+      ) : wrongNetwork ? (
+        /* Privy tidak punya "chain modal" seperti RainbowKit. Untuk embedded
+           wallet keadaan ini praktis tidak terjadi — chain-nya kita yang
+           tentukan — jadi yang ditampilkan cukup peringatan jujur. */
+        <button
+          type="button"
+          aria-label="Jaringan salah"
+          className={`btn btn-danger flex items-center justify-center gap-3 ${compact ? "!p-3 !shadow-none" : "w-full"}`}
+        >
+          <PixelIcon name="coin" size={16} />
+          {!compact && <span>JARINGAN SALAH</span>}
+        </button>
+      ) : compact ? (
+        <button
+          onClick={() => logout()}
+          type="button"
+          aria-label={address ? short(address) : "Akun"}
+          className="btn btn-warn !p-3 !shadow-none flex items-center justify-center gap-3"
+        >
+          <PixelIcon name="coin" size={16} />
+        </button>
+      ) : (
+        <div className="flex items-center gap-2">
+          <span className="sidebar-chain-btn">{monadTestnet.name}</span>
+          <button
+            onClick={() => logout()}
+            type="button"
+            className="btn btn-warn flex items-center justify-center gap-3 whitespace-nowrap"
           >
-            {!connected ? (
-              <button
-                onClick={openConnectModal}
-                type="button"
-                aria-label="Connect wallet"
-                className={`btn btn-warn flex items-center justify-center gap-3 ${compact ? "!p-3 !shadow-none" : "w-full"}`}
-              >
-                <PixelIcon name="coin" size={16} />
-                {!compact && <span>CONNECT WALLET</span>}
-              </button>
-            ) : chain.unsupported ? (
-              <button
-                onClick={openChainModal}
-                type="button"
-                aria-label="Wrong network"
-                className={`btn btn-danger flex items-center justify-center gap-3 ${compact ? "!p-3 !shadow-none" : "w-full"}`}
-              >
-                <PixelIcon name="coin" size={16} />
-                {!compact && <span>JARINGAN SALAH</span>}
-              </button>
-            ) : compact ? (
-              <button
-                onClick={openAccountModal}
-                type="button"
-                aria-label={account.displayName}
-                className="btn btn-warn !p-3 !shadow-none flex items-center justify-center gap-3"
-              >
-                <PixelIcon name="coin" size={16} />
-              </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button onClick={openChainModal} type="button" className="sidebar-chain-btn">
-                  {chain.hasIcon && chain.iconUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img alt={chain.name ?? "chain"} src={chain.iconUrl} className="w-4 h-4" />
-                  )}
-                  {chain.name}
-                </button>
-                <button onClick={openAccountModal} type="button" className="btn btn-warn flex items-center justify-center gap-3 whitespace-nowrap">
-                  <PixelIcon name="coin" size={16} />
-                  <span>{account.displayName}</span>
-                </button>
-              </div>
-            )}
-          </div>
-        );
-      }}
-    </ConnectButton.Custom>
+            <PixelIcon name="coin" size={16} />
+            <span>{address ? short(address) : "AKUN"}</span>
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

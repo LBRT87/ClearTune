@@ -13,6 +13,12 @@ const nextConfig = {
       // neither is used in the browser bundle.
       "pino-pretty": false,
       "@react-native-async-storage/async-storage": false,
+      // Sama polanya, dari sisi Privy: `@privy-io/react-auth` mengimpor
+      // jalur login Farcaster/Solana yang paket-paketnya optional peer dan
+      // tidak ikut terinstal. Kita cuma pakai Google, email, dan wallet
+      // EVM — jalur itu tidak pernah tersentuh, tapi webpack tetap harus
+      // me-resolve importnya kalau tidak distub.
+      "@farcaster/mini-app-solana": false,
     };
     return config;
   },

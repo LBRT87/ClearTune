@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useConnectPrompt } from "@/components/ui/WalletControls";
 import { PixelAvatar } from "@/components/ui/PixelAvatar";
 import { PixelIcon } from "@/components/ui/PixelIcon";
 import { PixelLoader } from "@/components/ui/PixelLoader";
@@ -11,6 +11,7 @@ type SupportedArtist = { artist: string; plays: number };
 
 export function ArtistStoryBar() {
   const { address, isConnected } = useAccount();
+  const { openConnectModal } = useConnectPrompt();
   const [artists, setArtists] = useState<SupportedArtist[] | null>(null);
   const [active, setActive] = useState<SupportedArtist | null>(null);
 
@@ -39,18 +40,14 @@ export function ArtistStoryBar() {
       <span className="text-dim font-display text-[10px] block mb-4">ARTIS YANG KAMU DUKUNG</span>
 
       {!isConnected && (
-        <ConnectButton.Custom>
-          {({ openConnectModal }) => (
-            <button onClick={openConnectModal} type="button" className="flex flex-col items-center gap-2">
-              <span className="story-bubble story-bubble-empty">
-                <span className="w-10 h-10 flex items-center justify-center bg-void text-dim">
-                  <PixelIcon name="plus" size={20} />
-                </span>
-              </span>
-              <span className="font-display text-[9px] text-dim">CONNECT</span>
-            </button>
-          )}
-        </ConnectButton.Custom>
+        <button onClick={openConnectModal} type="button" className="flex flex-col items-center gap-2">
+          <span className="story-bubble story-bubble-empty">
+            <span className="w-10 h-10 flex items-center justify-center bg-void text-dim">
+              <PixelIcon name="plus" size={20} />
+            </span>
+          </span>
+          <span className="font-display text-[9px] text-dim">MASUK</span>
+        </button>
       )}
 
       {isConnected && artists === null && <PixelLoader label="MEMUAT ARTIS" />}

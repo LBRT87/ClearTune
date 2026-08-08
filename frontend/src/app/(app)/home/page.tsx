@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAccount } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useConnectPrompt } from "@/components/ui/WalletControls";
 import { getSongs, type SongRow } from "@/lib/songs";
 import { getPlaylistsByOwner, type Playlist } from "@/lib/playlists";
 import { PixelCover } from "@/components/ui/PixelCover";
@@ -14,6 +14,7 @@ type Filter = "all" | "playlists" | "songs";
 
 export default function HomePage() {
   const { address, isConnected } = useAccount();
+  const { openConnectModal } = useConnectPrompt();
   const [songs, setSongs] = useState<SongRow[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[] | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
@@ -69,17 +70,13 @@ export default function HomePage() {
           </div>
 
           {!isConnected && (
-            <ConnectButton.Custom>
-              {({ openConnectModal }) => (
-                <button type="button" onClick={openConnectModal} className="media-card">
-                  <div className="media-cover flex items-center justify-center bg-void">
-                    <PixelIcon name="plus" size={40} className="text-dim" />
-                  </div>
-                  <div className="media-title text-dim">CONNECT WALLET</div>
-                  <div className="media-sub">buat lihat playlist kamu</div>
-                </button>
-              )}
-            </ConnectButton.Custom>
+            <button type="button" onClick={openConnectModal} className="media-card">
+              <div className="media-cover flex items-center justify-center bg-void">
+                <PixelIcon name="plus" size={40} className="text-dim" />
+              </div>
+              <div className="media-title text-dim">MASUK</div>
+              <div className="media-sub">buat lihat playlist kamu</div>
+            </button>
           )}
 
           {isConnected && playlists === null && <PixelLoader label="MEMUAT PLAYLIST" />}
