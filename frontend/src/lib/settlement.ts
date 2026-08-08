@@ -4,7 +4,7 @@
    Dipisah dari komponen supaya struk di babak penutup (server component) dan
    widget hero (client component) menghitung dari angka yang sama persis. */
 
-export const RATE_PER_PLAY = 1000;
+export const RATE_PER_PLAY = 20000;
 export const PLATFORM_FEE_BPS = 800;
 
 export const PAYEES = [
