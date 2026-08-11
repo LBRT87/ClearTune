@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAccount } from "wagmi";
 import type { Playlist } from "@/lib/playlists";
 import type { SongRow } from "@/lib/songs";
+import { usePlayer } from "@/lib/player/PlayerContext";
 import { Button } from "@/components/ui/Button";
 import { Card, StatRow } from "@/components/ui/Card";
 
@@ -14,6 +15,7 @@ function short(wallet: string) {
 
 export function PlaylistDetail({ playlist, songs }: { playlist: Playlist; songs: SongRow[] }) {
   const { address } = useAccount();
+  const { playSong } = usePlayer();
   const router = useRouter();
   const isOwner = !!address && address.toLowerCase() === playlist.owner_wallet.toLowerCase();
 
@@ -56,7 +58,7 @@ export function PlaylistDetail({ playlist, songs }: { playlist: Playlist; songs:
           <Card key={song.song_id_onchain} eyebrow={`SONG #${song.song_id_onchain}`} title={song.title.toUpperCase()}>
             <StatRow label="Artist" value={song.artist} />
             <div className="flex gap-3 mt-4">
-              <Link href={`/song/${song.song_id_onchain}`}>
+              <Link href={`/song/${song.song_id_onchain}`} onClick={() => playSong(song, songs)}>
                 <Button variant="outline">PLAY</Button>
               </Link>
               {isOwner && (

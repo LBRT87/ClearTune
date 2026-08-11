@@ -82,15 +82,15 @@ export function ConnectWalletButton({ compact = false }: { compact?: boolean }) 
           <PixelIcon name="coin" size={16} />
         </button>
       ) : (
-        <div className="flex items-center gap-2">
-          <span className="sidebar-chain-btn">{monadTestnet.name}</span>
+        <div className="flex items-center gap-2 min-w-0 justify-end">
+          <span className="sidebar-chain-btn hidden lg:flex shrink-0">{monadTestnet.name}</span>
           <button
             onClick={() => logout()}
             type="button"
-            className="btn btn-warn flex items-center justify-center gap-3 whitespace-nowrap"
+            className="btn btn-warn flex items-center justify-center gap-2 !px-3 !py-2 min-w-0"
           >
-            <PixelIcon name="coin" size={16} />
-            <span>{address ? short(address) : "ACCOUNT"}</span>
+            <PixelIcon name="coin" size={14} className="shrink-0" />
+            <span className="truncate min-w-0">{address ? short(address) : "ACCOUNT"}</span>
           </button>
         </div>
       )}

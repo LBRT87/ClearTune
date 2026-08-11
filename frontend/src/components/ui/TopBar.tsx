@@ -53,7 +53,7 @@ export function TopBar() {
       >
         <PixelIcon name="friends" size={18} />
       </button>
-      <div className="w-56 shrink-0">
+      <div className="shrink-0 min-w-0 max-w-[190px]">
         <ConnectWalletButton />
       </div>
     </div>

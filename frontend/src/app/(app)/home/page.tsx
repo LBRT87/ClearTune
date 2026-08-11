@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { useConnectPrompt } from "@/components/ui/WalletControls";
+import { usePlayer } from "@/lib/player/PlayerContext";
 import { getSongs, type SongRow } from "@/lib/songs";
 import { getPlaylistsByOwner, getPlaylistArtists, formatArtistList, type Playlist } from "@/lib/playlists";
 import { PixelCover } from "@/components/ui/PixelCover";
@@ -16,6 +17,7 @@ import { useHomeFilter } from "@/lib/useHomeFilter";
 export default function HomePage() {
   const { address, isConnected } = useAccount();
   const { openConnectModal } = useConnectPrompt();
+  const { playSong } = usePlayer();
   const [songs, setSongs] = useState<SongRow[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[] | null>(null);
   const [playlistArtists, setPlaylistArtists] = useState<Record<number, string[]>>({});
@@ -153,7 +155,12 @@ export default function HomePage() {
           {songs.length > 0 && (
             <div className="media-row">
               {songs.map((s) => (
-                <Link key={s.song_id_onchain} href={`/song/${s.song_id_onchain}`} className="media-card">
+                <Link
+                  key={s.song_id_onchain}
+                  href={`/song/${s.song_id_onchain}`}
+                  className="media-card"
+                  onClick={() => playSong(s, songs)}
+                >
                   <div className="media-cover cover-frame">
                     <PixelCover seed={`song-${s.song_id_onchain}-${s.title}`} src={s.cover_url} />
                     <span className="cover-play">

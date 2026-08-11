@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { RoleGate } from "@/components/auth/RoleGate";
 import { Sidebar } from "@/components/ui/Sidebar";
 import { TopBar } from "@/components/ui/TopBar";
+import { PlayerShell } from "@/components/player/PlayerShell";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,7 +18,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Suspense fallback={<div className="hidden md:block h-[84px] border-b-[3px] border-ink" />}>
           <TopBar />
         </Suspense>
-        {children}
+        <PlayerShell>{children}</PlayerShell>
       </div>
     </div>
   );

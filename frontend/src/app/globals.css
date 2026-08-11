@@ -643,6 +643,54 @@
       transform: translateY(250%);
     }
   }
+
+  /* Persistent now-playing bar, fixed to the bottom of the viewport. Left
+     offset matches the sidebar's md:w-[248px] so it never covers the
+     sidebar's own logout button. */
+  .global-player-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    background: #000000;
+    border-top: 3px solid #ffffff;
+    padding: 14px 20px;
+  }
+  @media (min-width: 768px) {
+    .global-player-bar {
+      left: 248px;
+    }
+  }
+  .global-player-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+  @media (min-width: 768px) {
+    .global-player-inner {
+      grid-template-columns: 240px 1fr 240px;
+      gap: 24px;
+    }
+  }
+  .global-player-track {
+    color: inherit;
+  }
+  .global-player-track:hover .font-display {
+    color: #8b5cf6;
+  }
+  .global-player-cover {
+    width: 48px;
+    height: 48px;
+  }
+  .global-player-controls {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
 }
 
 @layer utilities {

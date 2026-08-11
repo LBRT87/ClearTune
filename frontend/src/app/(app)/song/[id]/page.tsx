@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSongById } from "@/lib/songs";
 import { getSplitSheet } from "@/lib/splitSheet";
-import { PlayerControls } from "@/components/PlayerControls";
+import { SongPlayButton } from "@/components/SongPlayButton";
 import { AddToPlaylistButton } from "@/components/AddToPlaylistButton";
 import { Card, StatRow } from "@/components/ui/Card";
 
@@ -26,7 +26,7 @@ export default async function SongPage({ params }: { params: { id: string } }) {
 
       <div className="grid md:grid-cols-2 gap-8 mb-8">
         <Card>
-          <PlayerControls songId={song.song_id_onchain} storageUrl={song.storage_url} />
+          <SongPlayButton song={song} />
           <div className="mt-6 pt-6 border-t border-dashed border-dim">
             <AddToPlaylistButton songId={song.song_id_onchain} />
           </div>
